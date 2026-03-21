@@ -1,0 +1,132 @@
+/* Layout */
+.sv-layout {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+.sv-header {
+  margin-bottom: 20px;
+}
+
+.sv-main-content {
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 20px;
+  max-width: 900px;
+  margin: 32px auto 0 auto;
+  min-width: 320px;
+}
+
+/* Tabs */
+.sv-tabs {
+  display: flex;
+  margin-bottom: 0;
+  border-bottom: 2px solid #ccc;
+}
+.sv-tab {
+  padding: 10px 24px;
+  cursor: pointer;
+  background: #BDC3C7;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  margin-right: 4px;
+  color: #222;
+  font-weight: 500;
+  outline: none;
+  transition: background 0.2s, color 0.2s;
+}
+.sv-tab.sv-tab-active {
+  background: #2980B9;
+  color: #fff;
+}
+.sv-tab-content {
+  border: 1px solid #ccc;
+  border-top: none;
+  padding: 15px;
+  border-radius: 0 0 8px 8px;
+  background: #fff;
+  margin-bottom: 20px;
+}
+
+/* Table */
+.sv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.sv-table th, .sv-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+.sv-table th {
+  background: #34495E;
+  color: #fff;
+}
+.sv-table tbody tr:hover {
+  background: #ECF0F1;
+}
+
+/* Form */
+.sv-form input,
+.sv-form select,
+.sv-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.sv-form button {
+  background: #27AE60;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sv-form button:hover {
+  background: #2ECC71;
+}
+
+/* Notifications */
+.sv-notification {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.98em;
+  display: inline-block;
+}
+.sv-notification-success {
+  background: #2ECC71;
+}
+.sv-notification-rejected {
+  background: #E74C3C;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .sv-main-content {
+    padding: 8px;
+  }
+  .sv-table, .sv-table thead, .sv-table tbody, .sv-table th, .sv-table td, .sv-table tr {
+    display: block;
+    width: 100%;
+  }
+  .sv-table tr {
+    margin-bottom: 10px;
+    border-bottom: 2px solid #eee;
+  }
+  .sv-table td, .sv-table th {
+    text-align: left;
+    padding: 8px 4px;
+    border: none;
+    border-bottom: 1px solid #eee;
+  }
+  .sv-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+  }
+}

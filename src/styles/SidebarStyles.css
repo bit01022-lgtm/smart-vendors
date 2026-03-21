@@ -1,0 +1,47 @@
+/* Sidebar styles for Smart Vendors system */
+.sv-sidebar {
+  width: 220px;
+  background: #2C3E50;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.sv-sidebar-header {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 32px 0 40px 0;
+  color: #fff;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.sv-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 0 0 0;
+}
+.sv-sidebar-link {
+  color: #fff;
+  background: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 16px;
+  margin: 0 12px;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: block;
+}
+.sv-sidebar-link:hover {
+  background: #34495e;
+  color: #fff;
+}
+.sv-sidebar-link.active {
+  background: #2980B9;
+  color: #fff;
+}
