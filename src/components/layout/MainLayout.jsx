@@ -14,35 +14,37 @@ const MainLayout = ({ children, title }) => {
           <Navbar />
           {title && (
             <div style={{ textAlign: 'center', marginTop: 18 }}>
-              <img
-                src={
-                  title.toLowerCase() === 'client' ? '/role-images/client.png'
-                  : title.toLowerCase() === 'vendor' ? '/role-images/vendor.png'
-                  : title.toLowerCase() === 'procurement' ? '/role-images/procurement.png'
-                  : title.toLowerCase() === 'finance' ? '/role-images/finance.png'
-                  : title.toLowerCase() === 'admin' ? '/role-images/admin.png'
-                  : ''
-                }
-                alt={title + ' icon'}
-                style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 8 }}
-              />
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: 700,
-                  color:
-                    title.toLowerCase() === 'client' ? '#2980B9'
-                    : title.toLowerCase() === 'vendor' ? '#27AE60'
-                    : title.toLowerCase() === 'procurement' ? '#E67E22'
-                    : title.toLowerCase() === 'finance' ? '#8E44AD'
-                    : title.toLowerCase() === 'admin' ? '#C0392B'
-                    : '#222',
-                  letterSpacing: 2,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {title}
-              </div>
+              {title.toLowerCase() === 'client' ? (
+                <h1
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 600,
+                    color: '#1E3A8A',
+                    marginBottom: 20,
+                    letterSpacing: 1,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  CLIENT
+                </h1>
+              ) : (
+                <div
+                  style={{
+                    fontSize: 24,
+                    fontWeight: 700,
+                    color:
+                      title.toLowerCase() === 'vendor' ? '#27AE60'
+                      : title.toLowerCase() === 'procurement' ? '#E67E22'
+                      : title.toLowerCase() === 'finance' ? '#8E44AD'
+                      : title.toLowerCase() === 'admin' ? '#C0392B'
+                      : '#222',
+                    letterSpacing: 2,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {title}
+                </div>
+              )}
             </div>
           )}
         </header>

@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import MainLayout from '../../components/layout/MainLayout';
+
 import '../../styles/DashboardStyles.css';
 
 const initialInvoices = [
@@ -71,14 +72,40 @@ function FinanceDashboard() {
     );
   });
 
+  // Payment status logic
+  const [paymentStatus, setPaymentStatus] = useState({});
+  const handleApprovePayment = (id) => {
+    setPaymentStatus((prev) => ({ ...prev, [id]: "Paid" }));
+    showNotification("Payment approved.");
+  };
+
+  // Summary cards
+  const totalPayments = invoices.length;
+  const pendingPayments = invoices.filter(inv => (paymentStatus[inv.id] || inv.status) !== "Paid").length;
+  const completedPayments = invoices.filter(inv => (paymentStatus[inv.id] || inv.status) === "Paid").length;
+
   return (
     <MainLayout title="Finance">
+      {/* Removed icon space for role as well */}
       <div className="sv-main-content">
+        <div className="sv-summary-cards">
+          <div className="sv-summary-card sv-summary-total">
+            <div className="sv-summary-label">Total Payments</div>
+            <div className="sv-summary-value">{totalPayments}</div>
+          </div>
+          <div className="sv-summary-card sv-summary-pending">
+            <div className="sv-summary-label">Pending</div>
+            <div className="sv-summary-value">{pendingPayments}</div>
+          </div>
+          <div className="sv-summary-card sv-summary-completed">
+            <div className="sv-summary-label">Completed</div>
+            <div className="sv-summary-value">{completedPayments}</div>
+          </div>
+        </div>
         <div className="sv-tabs">
           <button className={`sv-tab${activeTab === "viewInvoices" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("viewInvoices")}>View Invoices</button>
           <button className={`sv-tab${activeTab === "approvePayments" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("approvePayments")}>Approve Payments</button>
           <button className={`sv-tab${activeTab === "trackPayments" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("trackPayments")}>Track Payment Records</button>
-          <button className={`sv-tab${activeTab === "vendor" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("vendor")}>Vendor</button>
         </div>
         <div>
           {notifications.map((msg, idx) => (
@@ -87,139 +114,50 @@ function FinanceDashboard() {
         </div>
         {activeTab === "viewInvoices" && (
           <div className="sv-tab-content">
-            <h3>Invoices</h3>
-            <div className="dashboard-filters">
-              <input
-                name="vendor"
-                placeholder="Filter by Vendor"
-                value={filters.vendor}
-                onChange={handleFilterChange}
-              />
-              <input
-                name="poNumber"
-                placeholder="Filter by PO Number"
-                value={filters.poNumber}
-                onChange={handleFilterChange}
-              />
-              <input
-                name="status"
-                placeholder="Filter by Status"
-                value={filters.status}
-                onChange={handleFilterChange}
-              />
-              <input
-                name="amount"
-                placeholder="Filter by Amount"
-                value={filters.amount}
-                onChange={handleFilterChange}
-              />
-            </div>
-            <table className="sv-table">
-              <thead>
-                <tr>
-                  <th>Invoice ID</th>
-                  <th>PO Number</th>
-                  <th>Vendor Name</th>
-                  <th>Amount</th>
-                  <th>Submission Date</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInvoices.length === 0 ? (
+            <h3>Awarded Tenders</h3>
+            <div className="sv-table-container">
+              <table className="sv-table sv-table-striped sv-table-rounded">
+                <thead>
                   <tr>
-                    <td colSpan={7}>No invoices found.</td>
+                    <th>Invoice ID</th>
+                    <th>PO Number</th>
+                    <th>Vendor Name</th>
+                    <th>Amount</th>
+                    <th>Submission Date</th>
+                    <th>Payment Status</th>
+                    <th>Actions</th>
                   </tr>
-                ) : (
-                  filteredInvoices.map((inv) => (
-                    <tr key={inv.id}>
-                      <td>{inv.id}</td>
-                      <td>
-                        {editId === inv.id ? (
-                          <input
-                            name="poNumber"
-                            value={editInvoice.poNumber}
-                            onChange={handleEditChange}
-                          />
-                        ) : (
-                          inv.poNumber
-                        )}
-                      </td>
-                      <td>
-                        {editId === inv.id ? (
-                          <input
-                            name="vendorName"
-                            value={editInvoice.vendorName}
-                            onChange={handleEditChange}
-                          />
-                        ) : (
-                          inv.vendorName
-                        )}
-                      </td>
-                      <td>
-                        {editId === inv.id ? (
-                          <input
-                            name="amount"
-                            type="number"
-                            value={editInvoice.amount}
-                            onChange={handleEditChange}
-                          />
-                        ) : (
-                          inv.amount
-                        )}
-                      </td>
-                      <td>
-                        {editId === inv.id ? (
-                          <input
-                            name="submissionDate"
-                            type="date"
-                            value={editInvoice.submissionDate}
-                            onChange={handleEditChange}
-                          />
-                        ) : (
-                          inv.submissionDate
-                        )}
-                      </td>
-                      <td>
-                        {editId === inv.id ? (
-                          <input
-                            name="status"
-                            value={editInvoice.status}
-                            onChange={handleEditChange}
-                          />
-                        ) : (
-                          inv.status
-                        )}
-                      </td>
-                      <td>
-                        {editId === inv.id ? (
-                          <>
-                            <button onClick={handleEditSave}>Save</button>
-                            <button onClick={handleEditCancel}>Cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            <button onClick={() => handleEdit(inv)}>Edit</button>
-                            <button onClick={() => handleDelete(inv.id)}>Delete</button>
-                            <button onClick={() => handleDownload(inv.id)}>Download</button>
-                          </>
-                        )}
-                      </td>
+                </thead>
+                <tbody>
+                  {filteredInvoices.length === 0 ? (
+                    <tr>
+                      <td colSpan={7}>No invoices found.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredInvoices.map((inv) => (
+                      <tr key={inv.id}>
+                        <td>{inv.id}</td>
+                        <td>{inv.poNumber}</td>
+                        <td>{inv.vendorName}</td>
+                        <td>{inv.amount}</td>
+                        <td>{inv.submissionDate}</td>
+                        <td>
+                          <span className={`sv-badge sv-badge-${(paymentStatus[inv.id] || inv.status).toLowerCase()}`}>{paymentStatus[inv.id] || inv.status}</span>
+                        </td>
+                        <td>
+                          {(paymentStatus[inv.id] || inv.status) !== "Paid" && (
+                            <button className="sv-btn-primary" onClick={() => handleApprovePayment(inv.id)}>Approve Payment</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
         {/* Approve Payments and Track Payment Records tabs intentionally left out for this request */}
-        {activeTab === "vendor" && (
-          <div className="sv-tab-content">
-            <h3>Vendor Tab</h3>
-            <p>This is a placeholder for the Vendor tab. Add vendor-related finance features here.</p>
-          </div>
-        )}
       </div>
     </MainLayout>
   );

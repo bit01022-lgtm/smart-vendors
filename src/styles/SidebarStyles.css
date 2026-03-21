@@ -1,7 +1,7 @@
 /* Sidebar styles for Smart Vendors system */
 .sv-sidebar {
   width: 220px;
-  background: #2C3E50;
+  background: #1E3A8A;
   color: #fff;
   min-height: 100vh;
   display: flex;
@@ -9,39 +9,59 @@
   padding: 0;
 }
 .sv-sidebar-header {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   margin: 32px 0 40px 0;
   color: #fff;
   letter-spacing: 1px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.sv-sidebar-logo {
+  font-size: 2rem;
+  margin-right: 6px;
 }
 .sv-sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   padding: 0 0 0 0;
+  margin-top: 10px;
 }
 .sv-sidebar-link {
   color: #fff;
   background: none;
-  padding: 12px 24px;
-  border-radius: 6px;
+  padding: 12px 18px;
+  border-radius: 8px;
   font-weight: 500;
   text-decoration: none;
   font-size: 16px;
   margin: 0 12px;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.3s ease, color 0.3s, box-shadow 0.3s, border-radius 0.3s;
   border: none;
   outline: none;
   cursor: pointer;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .sv-sidebar-link:hover {
-  background: #34495e;
+  background: #3B82F6;
   color: #fff;
+  box-shadow: 0 4px 16px rgba(30,58,138,0.10);
+  border-radius: 12px;
 }
 .sv-sidebar-link.active {
-  background: #2980B9;
+  background: #1E40AF;
   color: #fff;
+  box-shadow: 0 8px 24px rgba(30,58,138,0.16);
+  border-radius: 12px;
+}
+.sv-sidebar-icon {
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
 }

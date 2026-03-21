@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import MainLayout from '../../components/layout/MainLayout';
+
 import '../../styles/DashboardStyles.css';
 
   // ...existing code...
@@ -244,6 +245,7 @@ function VendorDashboard() {
 
   return (
     <MainLayout title="Vendor">
+      {/* Removed icon space for role as well */}
       <div className="sv-main-content">
         {notification && (
           <div className="sv-notification sv-notification-success">{notification}</div>
@@ -333,34 +335,22 @@ function VendorDashboard() {
             <label>Deadline: </label>
             <input type="date" value={filterDeadline} onChange={(e) => setFilterDeadline(e.target.value)} />
           </div>
-          <table className="sv-table">
-            <thead>
-              <tr>
-                <th>Tender ID</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Subcategory</th>
-                <th>Budget</th>
-                <th>Deadline</th>
-                <th>Status</th>
-                <th>Download</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTenders.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.id}</td>
-                  <td>{t.title}</td>
-                  <td>{t.category}</td>
-                  <td>{t.subcategory}</td>
-                  <td>{t.budget.min} - {t.budget.max}</td>
-                  <td>{t.deadline}</td>
-                  <td>{t.status}</td>
-                  <td><button onClick={() => handleDownloadTender(t)}>Download</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="sv-tender-cards">
+            {filteredTenders.length === 0 ? (
+              <div className="sv-empty-state">No open tenders available</div>
+            ) : (
+              filteredTenders.map((t) => (
+                <div className="sv-tender-card" key={t.id}>
+                  <div className="sv-tender-title">{t.title}</div>
+                  <div className="sv-tender-info">
+                    <span><strong>Budget:</strong> {t.budget.min} - {t.budget.max}</span>
+                    <span><strong>Deadline:</strong> {t.deadline}</span>
+                  </div>
+                  <button className="sv-btn-primary sv-btn-bid">Submit Bid</button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 
@@ -463,27 +453,30 @@ function VendorDashboard() {
       )}
 
       {activeTab === "uploadInvoices" && (
-        <div className="tab-content">
-          <form className="dashboard-form" onSubmit={handleInvoiceSubmit}>
-            <div>
-              <label>Select Purchase Order: </label>
-              <select value={invoicePo} onChange={handleInvoicePoChange} required>
-                <option value="">Select PO</option>
-                {issuedPOs.map((po) => (
-                  <option key={po.id} value={po.id}>{po.id} (Tender: {po.tenderId})</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Invoice File: </label>
-              <input type="file" onChange={handleInvoiceFileChange} required />
-            </div>
-            <div>
-              <label>Notes: </label>
-              <textarea value={invoiceNotes} onChange={handleInvoiceNotesChange} />
-            </div>
-            <button type="submit">Submit</button>
-          </form>
+        <div className="sv-tab-content">
+          <div className="sv-card sv-form-card">
+            <h2 className="sv-card-title">Upload Invoices</h2>
+            <form className="sv-form" onSubmit={handleInvoiceSubmit}>
+              <div className="sv-form-group">
+                <label>Select Purchase Order: </label>
+                <select value={invoicePo} onChange={handleInvoicePoChange} required>
+                  <option value="">Select PO</option>
+                  {issuedPOs.map((po) => (
+                    <option key={po.id} value={po.id}>{po.id} (Tender: {po.tenderId})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sv-form-group">
+                <label>Invoice File: </label>
+                <input type="file" onChange={handleInvoiceFileChange} required />
+              </div>
+              <div className="sv-form-group">
+                <label>Notes: </label>
+                <textarea value={invoiceNotes} onChange={handleInvoiceNotesChange} />
+              </div>
+              <button type="submit" className="sv-btn-primary">Submit</button>
+            </form>
+          </div>
           <h3>Uploaded Invoices</h3>
           <table className="sv-table">
             <thead>

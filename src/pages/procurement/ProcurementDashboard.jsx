@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import MainLayout from '../../components/layout/MainLayout';
+
 import '../../styles/DashboardStyles.css';
 
   // ...existing code...
@@ -206,191 +207,269 @@ function ProcurementDashboard() {
 
   return (
     <MainLayout title="Procurement">
-      {notification && (
-        <div className="sv-notification sv-notification-success">{notification}</div>
-      )}
-      <div className="sv-tabs">
-        <button
-          className={`sv-tab${activeTab === "createTender" ? " sv-tab-active" : ""}`}
-          onClick={() => setActiveTab("createTender")}
-        >Create Tender</button>
-        <button
-          className={`sv-tab${activeTab === "viewBids" ? " sv-tab-active" : ""}`}
-          onClick={() => setActiveTab("viewBids")}
-        >View Vendor Bids</button>
-        <button
-          className={`sv-tab${activeTab === "selectWinner" ? " sv-tab-active" : ""}`}
-          onClick={() => setActiveTab("selectWinner")}
-        >Select Winning Vendor</button>
-        <button
-          className={`sv-tab${activeTab === "issuePO" ? " sv-tab-active" : ""}`}
-          onClick={() => setActiveTab("issuePO")}
-        >Issue Purchase Order</button>
-      </div>
-
-      {activeTab === "createTender" && (
-        <div className="sv-tab-content">
-          <form className="sv-form" onSubmit={handleSubmit}>
-            <div>
-              <label>Tender Title</label>
-              <input name="title" type="text" value={form.title} onChange={handleInputChange} required />
-            </div>
-            <div>
-              <label>Description</label>
-              <textarea name="description" value={form.description} onChange={handleInputChange} required />
-            </div>
-            <div>
-              <label>Category</label>
-              <select name="category" value={form.category} onChange={handleInputChange} required>
-                <option value="">Select Category</option>
-                {Object.keys(categoryOptions).map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Subcategory</label>
-              <select name="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
-                <option value="">{form.category ? "Select Subcategory" : "Select Category First"}</option>
-                {form.category && categoryOptions[form.category].map((sub) => (
-                  <option key={sub} value={sub}>{sub}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Budget Min</label>
-              <input name="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
-            </div>
-            <div>
-              <label>Budget Max</label>
-              <input name="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
-            </div>
-            <div>
-              <label>Submission Deadline</label>
-              <input name="deadline" type="date" value={form.deadline} onChange={handleInputChange} min={today} required />
-            </div>
-            <div>
-              <label>Attachments</label>
-              <input name="attachments" type="file" onChange={handleInputChange} multiple />
-            </div>
-            <button type="submit">Submit</button>
-          </form>
+      <div className="sv-main-content">
+        {notification && (
+          <div className="sv-notification sv-notification-success">{notification}</div>
+        )}
+        <div className="sv-tabs">
+          <button
+            className={`sv-tab${activeTab === "createTender" ? " sv-tab-active" : ""}`}
+            onClick={() => setActiveTab("createTender")}
+          >Create Tender</button>
+          <button
+            className={`sv-tab${activeTab === "viewBids" ? " sv-tab-active" : ""}`}
+            onClick={() => setActiveTab("viewBids")}
+          >View Vendor Bids</button>
+          <button
+            className={`sv-tab${activeTab === "selectWinner" ? " sv-tab-active" : ""}`}
+            onClick={() => setActiveTab("selectWinner")}
+          >Select Winning Vendor</button>
+          <button
+            className={`sv-tab${activeTab === "issuePO" ? " sv-tab-active" : ""}`}
+            onClick={() => setActiveTab("issuePO")}
+          >Issue Purchase Order</button>
         </div>
-      )}
 
-      {activeTab === "viewBids" && (
-        <div className="sv-tab-content">
-          <h3>Vendor Bids</h3>
-          <table className="sv-table">
-            <thead>
-              <tr>
-                <th>Bid ID</th>
-                <th>Tender ID</th>
-                <th>Vendor Name</th>
-                <th>Bid Amount</th>
-                <th>Submission Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bids.map((bid) => (
-                <tr key={bid.id}>
-                  <td>{bid.id}</td>
-                  <td>{bid.tenderId}</td>
-                  <td>{bid.vendor}</td>
-                  <td>{bid.amount}</td>
-                  <td>{bid.date}</td>
-                  <td>{bid.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {activeTab === "selectWinner" && (
-        <div>
-          <h3>Select Winning Vendor</h3>
-          <div>
-            <label>Select Tender: </label>
-            <select value={winnerTenderId} onChange={handleSelectWinnerTender}>
-              <option value="">Select Tender</option>
-              {tenders.map((t) => (
-                <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
-              ))}
-            </select>
+        {activeTab === "createTender" && (
+          <div className="sv-tab-content">
+            <div className="sv-card sv-form-card">
+              <h2 className="sv-card-title">Create Tender</h2>
+              <form className="sv-form" onSubmit={handleSubmit}>
+                <div className="sv-form-group">
+                  <label>Tender Title</label>
+                  <input name="title" type="text" value={form.title} onChange={handleInputChange} required />
+                </div>
+                <div className="sv-form-group">
+                  <label>Description</label>
+                  <textarea name="description" value={form.description} onChange={handleInputChange} required />
+                </div>
+                <div className="sv-form-group">
+                  <label>Category</label>
+                  <select name="category" value={form.category} onChange={handleInputChange} required>
+                    <option value="">Select Category</option>
+                    {Object.keys(categoryOptions).map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="sv-form-group">
+                  <label>Subcategory</label>
+                  <select name="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
+                    <option value="">{form.category ? "Select Subcategory" : "Select Category First"}</option>
+                    {form.category && categoryOptions[form.category].map((sub) => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="sv-form-group">
+                  <label>Budget Min</label>
+                  <input name="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
+                </div>
+                <div className="sv-form-group">
+                  <label>Budget Max</label>
+                  <input name="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
+                </div>
+                <div className="sv-form-group">
+                  <label>Submission Deadline</label>
+                  <input name="deadline" type="date" value={form.deadline} onChange={handleInputChange} min={today} required />
+                </div>
+                <div className="sv-form-group">
+                  <label>Attachments</label>
+                  <input name="attachments" type="file" onChange={handleInputChange} multiple />
+                </div>
+                <button type="submit" className="sv-btn-primary">Submit</button>
+              </form>
+            </div>
+            <div className="sv-section">
+              <h3 className="sv-section-title">Active Tenders</h3>
+              {tenders.filter(t => t.status === "Open").length === 0 ? (
+                <div className="sv-empty-state">No tenders available</div>
+              ) : (
+                <div className="sv-table-container">
+                  <table className="sv-table sv-table-striped sv-table-rounded">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Budget</th>
+                        <th>Deadline</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tenders.filter(t => t.status === "Open").map((tender) => (
+                        <tr key={tender.id}>
+                          <td>{tender.id}</td>
+                          <td>{tender.title}</td>
+                          <td>{tender.category}</td>
+                          <td>{tender.subcategory}</td>
+                          <td>{tender.budget.min} - {tender.budget.max}</td>
+                          <td>{tender.deadline}</td>
+                          <td>
+                            <button className="sv-btn-primary" style={{marginRight: 8}}>View Bids</button>
+                            <button className="sv-btn-green">Select Winner</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            <div className="sv-section">
+              <h3 className="sv-section-title">Closed Tenders</h3>
+              {tenders.filter(t => t.status === "Closed").length === 0 ? (
+                <div className="sv-empty-state">No closed tenders</div>
+              ) : (
+                <div className="sv-table-container">
+                  <table className="sv-table sv-table-striped sv-table-rounded">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Budget</th>
+                        <th>Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tenders.filter(t => t.status === "Closed").map((tender) => (
+                        <tr key={tender.id}>
+                          <td>{tender.id}</td>
+                          <td>{tender.title}</td>
+                          <td>{tender.category}</td>
+                          <td>{tender.subcategory}</td>
+                          <td>{tender.budget.min} - {tender.budget.max}</td>
+                          <td>{tender.deadline}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
-          {winnerTenderId && (
-            <table>
+        )}
+
+        {activeTab === "viewBids" && (
+          <div className="sv-tab-content">
+            <h3>Vendor Bids</h3>
+            <table className="sv-table">
               <thead>
                 <tr>
                   <th>Bid ID</th>
+                  <th>Tender ID</th>
                   <th>Vendor Name</th>
                   <th>Bid Amount</th>
+                  <th>Submission Date</th>
                   <th>Status</th>
-                  <th>Select</th>
                 </tr>
               </thead>
               <tbody>
-                {bids.filter((b) => b.tenderId === winnerTenderId).map((bid) => (
+                {bids.map((bid) => (
                   <tr key={bid.id}>
                     <td>{bid.id}</td>
+                    <td>{bid.tenderId}</td>
                     <td>{bid.vendor}</td>
                     <td>{bid.amount}</td>
+                    <td>{bid.date}</td>
                     <td>{bid.status}</td>
-                    <td>
-                      <button onClick={() => handleSelectWinner(bid.id)} disabled={bid.status === "Winner"}>Select</button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {activeTab === "issuePO" && (
-        <div>
-          <h3>Issue Purchase Order</h3>
-          <form onSubmit={handlePoSubmit}>
+        {activeTab === "selectWinner" && (
+          <div>
+            <h3>Select Winning Vendor</h3>
             <div>
               <label>Select Tender: </label>
-              <select name="tenderId" value={poForm.tenderId} onChange={handlePoTenderChange} required>
+              <select value={winnerTenderId} onChange={handleSelectWinnerTender}>
                 <option value="">Select Tender</option>
-                {tenders.filter((t) => t.status !== "Closed").map((t) => (
+                {tenders.map((t) => (
                   <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
                 ))}
               </select>
             </div>
-            <div>
-              <label>Select Vendor: </label>
-              <select name="vendor" value={poForm.vendor} onChange={handlePoVendorChange} required disabled={!poForm.tenderId}>
-                <option value="">Select Vendor</option>
-                {bids.filter((b) => b.tenderId === poForm.tenderId && b.status === "Winner").map((b) => (
-                  <option key={b.vendor} value={b.vendor}>{b.vendor}</option>
-                ))}
-              </select>
+            {winnerTenderId && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Bid ID</th>
+                    <th>Vendor Name</th>
+                    <th>Bid Amount</th>
+                    <th>Status</th>
+                    <th>Select</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bids.filter((b) => b.tenderId === winnerTenderId).map((bid) => (
+                    <tr key={bid.id}>
+                      <td>{bid.id}</td>
+                      <td>{bid.vendor}</td>
+                      <td>{bid.amount}</td>
+                      <td>{bid.status}</td>
+                      <td>
+                        <button onClick={() => handleSelectWinner(bid.id)} disabled={bid.status === "Winner"}>Select</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {activeTab === "issuePO" && (
+          <div className="sv-tab-content">
+            <div className="sv-card sv-form-card">
+              <h2 className="sv-card-title">Issue Purchase Order</h2>
+              <form className="sv-form" onSubmit={handlePoSubmit}>
+                <div className="sv-form-group">
+                  <label>Select Tender: </label>
+                  <select name="tenderId" value={poForm.tenderId} onChange={handlePoTenderChange} required>
+                    <option value="">Select Tender</option>
+                    {tenders.filter((t) => t.status !== "Closed").map((t) => (
+                      <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="sv-form-group">
+                  <label>Select Vendor: </label>
+                  <select name="vendor" value={poForm.vendor} onChange={handlePoVendorChange} required disabled={!poForm.tenderId}>
+                    <option value="">Select Vendor</option>
+                    {bids.filter((b) => b.tenderId === poForm.tenderId && b.status === "Winner").map((b) => (
+                      <option key={b.vendor} value={b.vendor}>{b.vendor}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="sv-form-group">
+                  <label>PO Number: </label>
+                  <input name="poNumber" type="text" value={poForm.poNumber || getNextPoNumber()} readOnly />
+                </div>
+                <div className="sv-form-group">
+                  <label>Issue Date: </label>
+                  <input name="issueDate" type="date" value={poForm.issueDate} onChange={handlePoInputChange} required />
+                </div>
+                <div className="sv-form-group">
+                  <label>Amount: </label>
+                  <input name="amount" type="number" value={poForm.amount} readOnly />
+                </div>
+                <div className="sv-form-group">
+                  <label>Notes: </label>
+                  <textarea name="notes" value={poForm.notes} onChange={handlePoInputChange} />
+                </div>
+                <button type="submit" className="sv-btn-primary">Submit</button>
+              </form>
             </div>
-            <div>
-              <label>PO Number: </label>
-              <input name="poNumber" type="text" value={poForm.poNumber || getNextPoNumber()} readOnly />
-            </div>
-            <div>
-              <label>Issue Date: </label>
-              <input name="issueDate" type="date" value={poForm.issueDate} onChange={handlePoInputChange} required />
-            </div>
-            <div>
-              <label>Amount: </label>
-              <input name="amount" type="number" value={poForm.amount} readOnly />
-            </div>
-            <div>
-              <label>Notes: </label>
-              <textarea name="notes" value={poForm.notes} onChange={handlePoInputChange} />
-            </div>
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </MainLayout>
   );
 }

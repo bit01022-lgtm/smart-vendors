@@ -1,7 +1,9 @@
 
 
+
 import React, { useState } from "react";
 import MainLayout from '../../components/layout/MainLayout';
+
 import '../../styles/DashboardStyles.css';
 
 const categoryOptions = {
@@ -133,59 +135,68 @@ function ClientDashboard() {
         </div>
         {activeTab === "submit" ? (
           <div className="sv-tab-content">
-            <form className="sv-form" onSubmit={handleSubmit}>
-              <div>
-                <label>Title</label>
-                <input name="title" type="text" value={form.title} onChange={handleInputChange} required />
-              </div>
-              <div>
-                <label>Description</label>
-                <textarea name="description" value={form.description} onChange={handleInputChange} required />
-              </div>
-              <div>
-                <label>Category</label>
-                <select name="category" value={form.category} onChange={handleInputChange} required>
-                  <option value="">Select Category</option>
-                  {Object.keys(categoryOptions).map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label>Subcategory</label>
-                <select name="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
-                  <option value="">{form.category ? "Select Subcategory" : "Select Category First"}</option>
-                  {form.category && categoryOptions[form.category].map((sub) => (
-                    <option key={sub} value={sub}>{sub}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label>Priority</label>
-                <select name="priority" value={form.priority} onChange={handleInputChange} required>
-                  {priorityOptions.map((p) => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label>Budget Min</label>
-                <input name="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
-              </div>
-              <div>
-                <label>Budget Max</label>
-                <input name="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
-              </div>
-              <div>
-                <label>Date Required</label>
-                <input name="dateRequired" type="date" value={form.dateRequired} onChange={handleInputChange} min={today} required />
-              </div>
-              <div>
-                <label>Attachments</label>
-                <input name="attachment" type="file" onChange={handleInputChange} />
-              </div>
-              <button type="submit">Submit</button>
-            </form>
+            <div className="sv-card sv-form-card">
+              <h2 className="sv-card-title">Submit Request</h2>
+              <form className="sv-form" onSubmit={handleSubmit}>
+                <div className="sv-form-section">
+                  <h3 className="sv-section-title">Request Details</h3>
+                  <div className="sv-form-group">
+                    <label htmlFor="title">Title</label>
+                    <input name="title" id="title" type="text" value={form.title} onChange={handleInputChange} required />
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="description">Description</label>
+                    <textarea name="description" id="description" value={form.description} onChange={handleInputChange} required />
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="category">Category</label>
+                    <select name="category" id="category" value={form.category} onChange={handleInputChange} required>
+                      <option value="">Select Category</option>
+                      {Object.keys(categoryOptions).map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="subcategory">Subcategory</label>
+                    <select name="subcategory" id="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
+                      <option value="">{form.category ? "Select Subcategory" : "Select Category First"}</option>
+                      {form.category && categoryOptions[form.category].map((sub) => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="priority">Priority</label>
+                    <select name="priority" id="priority" value={form.priority} onChange={handleInputChange} required>
+                      {priorityOptions.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="sv-form-section">
+                  <h3 className="sv-section-title">Budget</h3>
+                  <div className="sv-form-group">
+                    <label htmlFor="budgetMin">Budget Min</label>
+                    <input name="budgetMin" id="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="budgetMax">Budget Max</label>
+                    <input name="budgetMax" id="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="dateRequired">Date Required</label>
+                    <input name="dateRequired" id="dateRequired" type="date" value={form.dateRequired} onChange={handleInputChange} min={today} required />
+                  </div>
+                  <div className="sv-form-group">
+                    <label htmlFor="attachment">Attachments</label>
+                    <input name="attachment" id="attachment" type="file" onChange={handleInputChange} />
+                  </div>
+                </div>
+                <button type="submit" className="sv-btn-primary">Submit</button>
+              </form>
+            </div>
           </div>
         ) : (
           <div className="sv-tab-content">
@@ -210,73 +221,77 @@ function ClientDashboard() {
               </select>
               <button onClick={() => { setSearch(""); setFilterStatus(""); setFilterCategory(""); }} type="button">Clear</button>
             </div>
-            <table className="sv-table">
-              <thead>
-                <tr>
-                  <th>Request ID</th>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Subcategory</th>
-                  <th>Priority</th>
-                  <th>Budget</th>
-                  <th>Date Required</th>
-                  <th>Status</th>
-                  <th>Edit</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRequests.length === 0 ? (
+            <div className="sv-table-container">
+              <table className="sv-table sv-table-striped sv-table-rounded">
+                <thead>
                   <tr>
-                    <td colSpan={10}>No requests found.</td>
+                    <th>Request ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Subcategory</th>
+                    <th>Priority</th>
+                    <th>Budget</th>
+                    <th>Date Required</th>
+                    <th>Status</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
                   </tr>
-                ) : (
-                  filteredRequests.map((req) => (
-                    <tr key={req.id}>
-                      <td>{req.id}</td>
-                      <td>
-                        {editId === req.id ? (
-                          <input
-                            name="title"
-                            value={editRequest.title}
-                            onChange={e => setEditRequest({ ...editRequest, title: e.target.value })}
-                          />
-                        ) : (
-                          req.title
-                        )}
-                      </td>
-                      <td>{req.category}</td>
-                      <td>{req.subcategory}</td>
-                      <td>{req.priority}</td>
-                      <td>{req.budgetMin} - {req.budgetMax}</td>
-                      <td>{req.dateRequired}</td>
-                      <td>{req.status}</td>
-                      <td>
-                        {editId === req.id ? (
-                          <>
-                            <button onClick={() => {
-                              setRequests(prev => prev.map(r => r.id === req.id ? { ...r, title: editRequest.title } : r));
-                              setEditId(null);
-                              setEditRequest({});
-                              showNotification("Request updated.");
-                            }}>Save</button>
-                            <button onClick={() => { setEditId(null); setEditRequest({}); }}>Cancel</button>
-                          </>
-                        ) : (
-                          <button onClick={() => { setEditId(req.id); setEditRequest({ ...req }); }}>Edit</button>
-                        )}
-                      </td>
-                      <td>
-                        <button onClick={() => {
-                          setRequests(prev => prev.filter(r => r.id !== req.id));
-                          showNotification("Request deleted.");
-                        }}>Delete</button>
-                      </td>
+                </thead>
+                <tbody>
+                  {filteredRequests.length === 0 ? (
+                    <tr>
+                      <td colSpan={10}>No requests found.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredRequests.map((req, idx) => (
+                      <tr key={req.id} className={idx % 2 === 1 ? 'sv-table-row-alt' : ''}>
+                        <td>{req.id}</td>
+                        <td>
+                          {editId === req.id ? (
+                            <input
+                              name="title"
+                              value={editRequest.title}
+                              onChange={e => setEditRequest({ ...editRequest, title: e.target.value })}
+                            />
+                          ) : (
+                            req.title
+                          )}
+                        </td>
+                        <td>{req.category}</td>
+                        <td>{req.subcategory}</td>
+                        <td>{req.priority}</td>
+                        <td>{req.budgetMin} - {req.budgetMax}</td>
+                        <td>{req.dateRequired}</td>
+                        <td>
+                          <span className={`sv-badge sv-badge-${req.status.toLowerCase()}`}>{req.status}</span>
+                        </td>
+                        <td>
+                          {editId === req.id ? (
+                            <>
+                              <button onClick={() => {
+                                setRequests(prev => prev.map(r => r.id === req.id ? { ...r, title: editRequest.title } : r));
+                                setEditId(null);
+                                setEditRequest({});
+                                showNotification("Request updated.");
+                              }}>Save</button>
+                              <button onClick={() => { setEditId(null); setEditRequest({}); }}>Cancel</button>
+                            </>
+                          ) : (
+                            <button onClick={() => { setEditId(req.id); setEditRequest({ ...req }); }}>Edit</button>
+                          )}
+                        </td>
+                        <td>
+                          <button onClick={() => {
+                            setRequests(prev => prev.filter(r => r.id !== req.id));
+                            showNotification("Request deleted.");
+                          }}>Delete</button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
