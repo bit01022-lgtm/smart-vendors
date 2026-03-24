@@ -16,7 +16,6 @@ const Sidebar = () => {
   return (
     <div className="sv-sidebar">
       <div className="sv-sidebar-header">
-        <span className="sv-sidebar-logo">🛒</span>
         <span>Smart Vendors</span>
       </div>
       <nav className="sv-sidebar-menu">
