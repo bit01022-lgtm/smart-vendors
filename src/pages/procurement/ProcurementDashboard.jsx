@@ -1,7 +1,9 @@
 
 
 import React, { useState } from "react";
+
 import MainLayout from '../../components/layout/MainLayout';
+import ClientRequestsTab from './ClientRequestsTab';
 
 import '../../styles/DashboardStyles.css';
 
@@ -211,7 +213,12 @@ function ProcurementDashboard() {
         {notification && (
           <div className="sv-notification sv-notification-success">{notification}</div>
         )}
+
         <div className="sv-tabs">
+          <button
+            className={`sv-tab${activeTab === "clientRequests" ? " sv-tab-active" : ""}`}
+            onClick={() => setActiveTab("clientRequests")}
+          >Client Requests</button>
           <button
             className={`sv-tab${activeTab === "createTender" ? " sv-tab-active" : ""}`}
             onClick={() => setActiveTab("createTender")}
@@ -229,6 +236,10 @@ function ProcurementDashboard() {
             onClick={() => setActiveTab("issuePO")}
           >Issue Purchase Order</button>
         </div>
+
+        {activeTab === "clientRequests" && (
+          <ClientRequestsTab />
+        )}
 
         {activeTab === "createTender" && (
           <div className="sv-tab-content">
