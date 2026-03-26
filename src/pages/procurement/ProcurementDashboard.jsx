@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 import MainLayout from '../../components/layout/MainLayout';
-import ClientRequestsTab from './ClientRequestsTab';
+import HandleRequestsTab from './HandleRequestsTab';
 
 import '../../styles/DashboardStyles.css';
 
@@ -195,7 +195,7 @@ function ProcurementDashboard() {
     const [purchaseOrders, setPurchaseOrders] = useState([]);
     const [winnerTenderId, setWinnerTenderId] = useState("");
     const [selectedBidId, setSelectedBidId] = useState("");
-  const [activeTab, setActiveTab] = useState("createTender");
+  const [activeTab, setActiveTab] = useState("handleRequests");
   // Notification state and function
   const [notification, setNotification] = useState("");
   const showNotification = (msg) => {
@@ -216,9 +216,9 @@ function ProcurementDashboard() {
 
         <div className="sv-tabs">
           <button
-            className={`sv-tab${activeTab === "clientRequests" ? " sv-tab-active" : ""}`}
-            onClick={() => setActiveTab("clientRequests")}
-          >Client Requests</button>
+            className={`sv-tab${activeTab === "handleRequests" ? " sv-tab-active" : ""}`}
+            onClick={() => setActiveTab("handleRequests")}
+          >Handle Requests</button>
           <button
             className={`sv-tab${activeTab === "createTender" ? " sv-tab-active" : ""}`}
             onClick={() => setActiveTab("createTender")}
@@ -237,8 +237,8 @@ function ProcurementDashboard() {
           >Issue Purchase Order</button>
         </div>
 
-        {activeTab === "clientRequests" && (
-          <ClientRequestsTab />
+        {activeTab === "handleRequests" && (
+          <HandleRequestsTab />
         )}
 
         {activeTab === "createTender" && (
@@ -408,30 +408,48 @@ function ProcurementDashboard() {
               </select>
             </div>
             {winnerTenderId && (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Bid ID</th>
-                    <th>Vendor Name</th>
-                    <th>Bid Amount</th>
-                    <th>Status</th>
-                    <th>Select</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bids.filter((b) => b.tenderId === winnerTenderId).map((bid) => (
-                    <tr key={bid.id}>
-                      <td>{bid.id}</td>
-                      <td>{bid.vendor}</td>
-                      <td>{bid.amount}</td>
-                      <td>{bid.status}</td>
-                      <td>
-                        <button onClick={() => handleSelectWinner(bid.id)} disabled={bid.status === "Winner"}>Select</button>
-                      </td>
+              <>
+                <div style={{margin: '12px 0'}}>
+                  <button
+                    className="sv-btn-green"
+                    onClick={() => {
+                      const tender = tenders.find(t => t.id === winnerTenderId);
+                      if (!tender) return;
+                      const filteredBids = bids.filter(b => b.tenderId === winnerTenderId && b.amount >= tender.budget.min && b.amount <= tender.budget.max);
+                      if (filteredBids.length === 0) {
+                        showNotification('No bids within budget range.');
+                        return;
+                      }
+                      const lowestBid = filteredBids.reduce((min, b) => b.amount < min.amount ? b : min, filteredBids[0]);
+                      handleSelectWinner(lowestBid.id);
+                    }}
+                  >Select Lowest Bidder Within Budget</button>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Bid ID</th>
+                      <th>Vendor Name</th>
+                      <th>Bid Amount</th>
+                      <th>Status</th>
+                      <th>Select</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {bids.filter((b) => b.tenderId === winnerTenderId).map((bid) => (
+                      <tr key={bid.id}>
+                        <td>{bid.id}</td>
+                        <td>{bid.vendor}</td>
+                        <td>{bid.amount}</td>
+                        <td>{bid.status}</td>
+                        <td>
+                          <button onClick={() => handleSelectWinner(bid.id)} disabled={bid.status === "Winner"}>Select</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
             )}
           </div>
         )}

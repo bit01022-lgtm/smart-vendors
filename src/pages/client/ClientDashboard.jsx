@@ -22,48 +22,7 @@ const preloadedRequests = [
 ];
 
 function ClientDashboard() {
-  // Payments feature state
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedPO, setSelectedPO] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("Card");
-  // Dummy data for approved POs
-  const approvedPOs = [
-    { id: "PO-1001", vendor: "Acme Supplies", amount: 1200, status: "Pending Payment" },
-    { id: "PO-1002", vendor: "Tech World", amount: 850, status: "Paid" },
-    { id: "PO-1003", vendor: "OfficeMart", amount: 500, status: "Pending Payment" },
-  ];
-  const paymentMethods = [
-    "Card",
-    "Mobile Payment",
-    "Bank Transfer"
-  ];
-  const [paymentType, setPaymentType] = useState("full");
-  const [partialAmount, setPartialAmount] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [bankAccount, setBankAccount] = useState("");
-  const handlePayNow = (po) => {
-    setSelectedPO(po);
-    setShowPaymentModal(true);
-  };
-  const handlePayment = (e) => {
-    e.preventDefault();
-    setShowPaymentModal(false);
-    let message = "";
-    if (paymentMethod === "Mobile Payment") {
-      message = `A payment prompt has been sent to ${mobileNumber}.`;
-    } else if (paymentMethod === "Bank Transfer") {
-      message = `Bank transfer instructions sent for account: ${bankAccount}.`;
-    } else {
-      message = paymentType === "full"
-        ? `Full payment of ${selectedPO.amount} successful!`
-        : `Partial payment of ${partialAmount} successful!`;
-    }
-    alert(message);
-    setPaymentType("full");
-    setPartialAmount("");
-    setMobileNumber("");
-    setBankAccount("");
-  };
+  // ...existing code...
   const [activeTab, setActiveTab] = useState("submit");
   // Load requests from localStorage if available
   const [requests, setRequests] = useState(() => {
@@ -185,10 +144,6 @@ function ClientDashboard() {
             className={`sv-tab${activeTab === "track" ? " sv-tab-active" : ""}`}
             onClick={() => setActiveTab("track")}
           >Track Requests</button>
-          <button
-            className={`sv-tab${activeTab === "payments" ? " sv-tab-active" : ""}`}
-            onClick={() => setActiveTab("payments")}
-          >Payments</button>
         </div>
         {activeTab === "submit" ? (
           <div className="sv-tab-content">
@@ -352,131 +307,6 @@ function ClientDashboard() {
                   )}
                 </tbody>
               </table>
-            </div>
-          </div>
-        ) : activeTab === "payments" ? (
-          <div className="sv-tab-content">
-            <div className="sv-card sv-form-card sv-payments-section">
-              <h2>Payments</h2>
-              <table className="sv-table sv-table-striped sv-table-rounded">
-                <thead>
-                  <tr>
-                    <th>PO ID</th>
-                    <th>Vendor</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {approvedPOs.map((po) => (
-                    <tr key={po.id}>
-                      <td>{po.id}</td>
-                      <td>{po.vendor}</td>
-                      <td>{po.amount}</td>
-                      <td>{po.status}</td>
-                      <td>
-                        {po.status === "Pending Payment" ? (
-                          <button className="sv-btn-primary" onClick={() => handlePayNow(po)}>
-                            Pay Now
-                          </button>
-                        ) : (
-                          <span style={{ color: "green" }}>Paid</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {showPaymentModal && selectedPO && (
-                <div className="sv-modal sv-modal-open">
-                  <div className="sv-modal-content">
-                    <h3>Make Payment for {selectedPO.id}</h3>
-                    <form onSubmit={handlePayment}>
-                      <div className="sv-form-group">
-                        <label>Payment Method</label>
-                        <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} required>
-                          {paymentMethods.map((m) => (
-                            <option key={m} value={m}>{m}</option>
-                          ))}
-                        </select>
-                      </div>
-                      {/* Show extra fields based on payment method */}
-                      {paymentMethod === "Card" && (
-                        <div className="sv-form-group">
-                          <label>Card Number</label>
-                          <input
-                            type="text"
-                            placeholder="Enter card number"
-                            required
-                          />
-                          <div className="sv-payment-instructions">
-                            <small>Enter your card details. After clicking Confirm Payment, you will be redirected to a secure page to complete your card transaction.</small>
-                          </div>
-                        </div>
-                      )}
-                      {paymentMethod === "Mobile Payment" && (
-                        <div className="sv-form-group">
-                          <label>Mobile Number</label>
-                          <input
-                            type="tel"
-                            value={mobileNumber}
-                            onChange={e => setMobileNumber(e.target.value)}
-                            placeholder="Enter mobile number"
-                            required
-                          />
-                          <div className="sv-payment-instructions">
-                            <small>Enter your mobile number. After confirming, you will receive a prompt on your phone to authorize the payment.</small>
-                          </div>
-                        </div>
-                      )}
-                      {paymentMethod === "Bank Transfer" && (
-                        <div className="sv-form-group">
-                          <label>Bank Account Number</label>
-                          <input
-                            type="text"
-                            value={bankAccount}
-                            onChange={e => setBankAccount(e.target.value)}
-                            placeholder="Enter your bank account number"
-                            required
-                          />
-                          <div className="sv-payment-instructions">
-                            <small>Enter your bank account number. After confirming, you will receive instructions to complete the transfer from your bank app or branch.</small>
-                          </div>
-                        </div>
-                      )}
-                      <div className="sv-form-group">
-                        <label>Payment Type</label>
-                        <select value={paymentType} onChange={e => setPaymentType(e.target.value)} required>
-                          <option value="full">Full Payment</option>
-                          <option value="partial">Partial Payment</option>
-                        </select>
-                      </div>
-                      {paymentType === "full" ? (
-                        <div className="sv-form-group">
-                          <label>Amount</label>
-                          <input type="number" value={selectedPO.amount} readOnly />
-                        </div>
-                      ) : (
-                        <div className="sv-form-group">
-                          <label>Partial Amount</label>
-                          <input
-                            type="number"
-                            min={1}
-                            max={selectedPO.amount}
-                            value={partialAmount}
-                            onChange={e => setPartialAmount(e.target.value)}
-                            required
-                          />
-                          <small>Max: {selectedPO.amount}</small>
-                        </div>
-                      )}
-                      <button type="submit" className="sv-btn-primary">Confirm Payment</button>
-                      <button type="button" className="sv-btn-secondary" onClick={() => setShowPaymentModal(false)} style={{marginLeft:8}}>Cancel</button>
-                    </form>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ) : null}

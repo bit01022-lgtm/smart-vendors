@@ -29,7 +29,7 @@ const initialTenders = [
 ];
 
 function VendorDashboard() {
-  const [activeTab, setActiveTab] = useState("uploadDocs");
+  const [activeTab, setActiveTab] = useState("vendorRegistration");
   // Notification state and function
   const [notification, setNotification] = useState("");
   const showNotification = (msg) => {
@@ -39,7 +39,10 @@ function VendorDashboard() {
   const [documents, setDocuments] = useState([]);
   const [tenders, setTenders] = useState(initialTenders);
   const [bids, setBids] = useState([]);
-  const [invoices, setInvoices] = useState([]);
+  const [invoices, setInvoices] = useState(() => {
+    const stored = localStorage.getItem('vendorInvoices');
+    return stored ? JSON.parse(stored) : [];
+  });
 
   // Upload Documents State
   const [docFiles, setDocFiles] = useState([]);
@@ -212,6 +215,8 @@ function VendorDashboard() {
   const [invoicePo, setInvoicePo] = useState("");
   const [invoiceFile, setInvoiceFile] = useState(null);
   const [invoiceNotes, setInvoiceNotes] = useState("");
+  const [invoiceAmount, setInvoiceAmount] = useState("");
+  const [invoiceName, setInvoiceName] = useState("");
   const getNextInvoiceId = () => {
     return `INV-${(invoices.length + 1).toString().padStart(3, "0")}`;
   };
@@ -220,19 +225,27 @@ function VendorDashboard() {
   const handleInvoiceNotesChange = (e) => setInvoiceNotes(e.target.value);
   const handleInvoiceSubmit = (e) => {
     e.preventDefault();
-    if (!invoicePo || !invoiceFile) return;
-    setInvoices((prev) => [
-      ...prev,
-      {
-        id: getNextInvoiceId(),
-        po: invoicePo,
-        file: invoiceFile,
-        notes: invoiceNotes,
-      },
-    ]);
+    if (!invoicePo || !invoiceFile || !invoiceAmount || !invoiceName) return;
+    const newInvoice = {
+      id: getNextInvoiceId(),
+      po: invoicePo,
+      name: invoiceName,
+      amount: Number(invoiceAmount),
+      file: invoiceFile ? invoiceFile.name : '',
+      notes: invoiceNotes,
+      submissionDate: new Date().toISOString().split('T')[0],
+      status: 'Submitted',
+    };
+    setInvoices((prev) => {
+      const updated = [...prev, newInvoice];
+      localStorage.setItem('vendorInvoices', JSON.stringify(updated));
+      return updated;
+    });
     setInvoicePo("");
     setInvoiceFile(null);
     setInvoiceNotes("");
+    setInvoiceAmount("");
+    setInvoiceName("");
     e.target.reset();
     showNotification("Invoice uploaded successfully.");
   };
@@ -251,53 +264,76 @@ function VendorDashboard() {
           <div className="sv-notification sv-notification-success">{notification}</div>
         )}
         <div className="sv-tabs">
-          <button className={`sv-tab${activeTab === "uploadDocs" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("uploadDocs")}>Upload Documents</button>
+          <button className={`sv-tab${activeTab === "vendorRegistration" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("vendorRegistration")}>Vendor Registration</button>
           <button className={`sv-tab${activeTab === "viewTenders" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("viewTenders")}>View Open Tenders</button>
           <button className={`sv-tab${activeTab === "submitBids" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("submitBids")}>Submit Bids</button>
           <button className={`sv-tab${activeTab === "uploadInvoices" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("uploadInvoices")}>Upload Invoices</button>
         </div>
 
-        {activeTab === "uploadDocs" && (
+        {activeTab === "vendorRegistration" && (
           <div className="sv-tab-content">
+            <h2>Vendor Registration</h2>
+            <form className="sv-form" style={{marginBottom: 24}}>
+              <div className="sv-form-group">
+                <label>Company Name:</label>
+                <input type="text" placeholder="Enter company name" required />
+              </div>
+              <div className="sv-form-group">
+                <label>Company Registration Number:</label>
+                <input type="text" placeholder="Enter registration number" required />
+              </div>
+              <div className="sv-form-group">
+                <label>Company Email:</label>
+                <input type="email" placeholder="Enter company email" required />
+              </div>
+              <div className="sv-form-group">
+                <label>Company Phone:</label>
+                <input type="tel" placeholder="Enter company phone" required />
+              </div>
+              <div className="sv-form-group">
+                <label>Company Address:</label>
+                <input type="text" placeholder="Enter company address" required />
+              </div>
+            </form>
             <form className="sv-form" onSubmit={handleDocSubmit}>
-            <div>
-              <label>Document Name: </label>
-              <select value={docName} onChange={handleDocNameChange} required>
-                <option value="">Select Document Type</option>
-                <option value="Certificate of Incorporation">Certificate of Incorporation</option>
-                <option value="Tax Clearance Certificate">Tax Clearance Certificate</option>
-                <option value="custom">Other (Custom Name)</option>
-              </select>
-              {docName === "custom" && (
-                <input type="text" placeholder="Enter custom document name" value={customDocName} onChange={handleCustomDocNameChange} required />
-              )}
-            </div>
-            <div>
-              <label>Upload Files: </label>
-              <input type="file" multiple onChange={handleDocFileChange} />
-            </div>
-            <div>
-              <label>Notes/Description: </label>
-              <input type="text" value={docNotes} onChange={handleDocNotesChange} />
-            </div>
-            <button type="submit">Submit</button>
-          </form>
-          <h3>Uploaded Documents</h3>
-          <table className="sv-table">
-            <thead>
-              <tr>
-                <th>Document ID</th>
-                <th>Name</th>
-                <th>Notes</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {documents.map((doc) => (
-                <tr key={doc.id}>
-                  <td>{doc.id}</td>
-                  <td>{doc.name}</td>
-                  <td>
+              <div>
+                <label>Document Name: </label>
+                <select value={docName} onChange={handleDocNameChange} required>
+                  <option value="">Select Document Type</option>
+                  <option value="Certificate of Incorporation">Certificate of Incorporation</option>
+                  <option value="Tax Clearance Certificate">Tax Clearance Certificate</option>
+                  <option value="custom">Other (Custom Name)</option>
+                </select>
+                {docName === "custom" && (
+                  <input type="text" placeholder="Enter custom document name" value={customDocName} onChange={handleCustomDocNameChange} required />
+                )}
+              </div>
+              <div>
+                <label>Upload Files: </label>
+                <input type="file" multiple onChange={handleDocFileChange} />
+              </div>
+              <div>
+                <label>Notes/Description: </label>
+                <input type="text" value={docNotes} onChange={handleDocNotesChange} />
+              </div>
+              <button type="submit">Submit</button>
+            </form>
+            <h3>Uploaded Documents</h3>
+            <table className="sv-table">
+              <thead>
+                <tr>
+                  <th>Document ID</th>
+                  <th>Name</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc) => (
+                  <tr key={doc.id}>
+                    <td>{doc.id}</td>
+                    <td>{doc.name}</td>
+                    <td>
                     {editDocId === doc.id ? (
                       <span>
                         <input type="text" value={editDocNotes} onChange={handleEditDocNotesChange} />
@@ -357,25 +393,25 @@ function VendorDashboard() {
       {activeTab === "submitBids" && (
         <div className="sv-tab-content">
           <form className="sv-form" onSubmit={handleBidSubmit}>
-            <div>
-              <label>Select Tender: </label>
+            <div className="sv-form-group">
+              <label>Select Tender:</label>
               <select value={bidTenderId} onChange={handleBidTenderChange} required>
                 <option value="">Select Tender</option>
-                {tenders.filter((t) => t.status === "Open").map((t) => (
+                {tenders.map((t) => (
                   <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
                 ))}
               </select>
             </div>
-            <div>
-              <label>Bid Amount: </label>
+            <div className="sv-form-group">
+              <label>Bid Amount:</label>
               <input type="number" value={bidAmount} onChange={handleBidAmountChange} required />
             </div>
-            <div>
-              <label>Notes: </label>
-              <textarea value={bidNotes} onChange={handleBidNotesChange} />
+            <div className="sv-form-group">
+              <label>Notes/Description:</label>
+              <input type="text" value={bidNotes} onChange={handleBidNotesChange} />
             </div>
-            <div>
-              <label>Attachments: </label>
+            <div className="sv-form-group">
+              <label>Upload Bid Files:</label>
               <input type="file" multiple onChange={handleBidFilesChange} />
             </div>
             <button type="submit">Submit</button>
