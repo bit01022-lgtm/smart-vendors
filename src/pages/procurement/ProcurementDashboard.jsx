@@ -68,6 +68,20 @@ const initialBids = [
 ];
 
 function ProcurementDashboard() {
+          // Keep bids in sync with localStorage if changed elsewhere (e.g., another tab)
+          React.useEffect(() => {
+            const handler = () => {
+              const stored = localStorage.getItem('procurementBids');
+              if (stored) {
+                try {
+                  const parsed = JSON.parse(stored);
+                  if (Array.isArray(parsed)) setBids(parsed);
+                } catch {}
+              }
+            };
+            window.addEventListener('storage', handler);
+            return () => window.removeEventListener('storage', handler);
+          }, []);
       // Helper functions
       function getNextTenderId() {
         const num = tenders.length + 1;
@@ -118,11 +132,13 @@ function ProcurementDashboard() {
       function handleSelectWinner(bidId) {
         setBids((prev) => {
           const tenderId = winnerTenderId;
-          return prev.map((bid) =>
+          const updated = prev.map((bid) =>
             bid.tenderId === tenderId
               ? { ...bid, status: bid.id === bidId ? "Winner" : "Rejected" }
               : bid
           );
+          localStorage.setItem('procurementBids', JSON.stringify(updated));
+          return updated;
         });
         showNotification("Winner selected.");
       }
@@ -172,7 +188,17 @@ function ProcurementDashboard() {
       }
     // State for tenders, bids, form, purchase orders, etc.
     const [tenders, setTenders] = useState(initialTenders);
-    const [bids, setBids] = useState(initialBids);
+    // Load bids from localStorage if available
+    const [bids, setBids] = useState(() => {
+      const stored = localStorage.getItem('procurementBids');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {}
+      }
+      return initialBids;
+    });
     const [form, setForm] = useState({
       title: "",
       description: "",

@@ -503,6 +503,14 @@ function VendorDashboard() {
                 </select>
               </div>
               <div className="sv-form-group">
+                <label>Invoice Name: </label>
+                <input type="text" value={invoiceName} onChange={e => setInvoiceName(e.target.value)} required />
+              </div>
+              <div className="sv-form-group">
+                <label>Invoice Amount: </label>
+                <input type="number" value={invoiceAmount} onChange={e => setInvoiceAmount(e.target.value)} required />
+              </div>
+              <div className="sv-form-group">
                 <label>Invoice File: </label>
                 <input type="file" onChange={handleInvoiceFileChange} required />
               </div>

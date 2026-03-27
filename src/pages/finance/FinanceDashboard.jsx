@@ -71,16 +71,33 @@ function FinanceDashboard() {
   });
 
   // Payment status logic
-  const [paymentStatus, setPaymentStatus] = useState({});
+  // Persist verification status in invoice object
+  const handleVerifyInvoice = (id, status) => {
+    setInvoices((prev) => {
+      const updated = prev.map(inv =>
+        inv.id === id ? { ...inv, status: status === "Verified" ? "Approved" : "Rejected" } : inv
+      );
+      localStorage.setItem('vendorInvoices', JSON.stringify(updated));
+      return updated;
+    });
+    showNotification(`Invoice marked as ${status === "Verified" ? "Approved" : "Rejected"}.`);
+  };
+  // Persist payment status in invoice object
   const handleApprovePayment = (id) => {
-    setPaymentStatus((prev) => ({ ...prev, [id]: "Paid" }));
+    setInvoices((prev) => {
+      const updated = prev.map(inv =>
+        inv.id === id ? { ...inv, paymentStatus: "Paid" } : inv
+      );
+      localStorage.setItem('vendorInvoices', JSON.stringify(updated));
+      return updated;
+    });
     showNotification("Payment approved.");
   };
 
   // Summary cards
   const totalPayments = invoices.length;
-  const pendingPayments = invoices.filter(inv => (paymentStatus[inv.id] || inv.status) !== "Paid").length;
-  const completedPayments = invoices.filter(inv => (paymentStatus[inv.id] || inv.status) === "Paid").length;
+  const pendingPayments = invoices.filter(inv => inv.paymentStatus !== "Paid").length;
+  const completedPayments = invoices.filter(inv => inv.paymentStatus === "Paid").length;
 
   return (
     <MainLayout title="Finance">
@@ -106,13 +123,89 @@ function FinanceDashboard() {
           <button className={`sv-tab${activeTab === "trackPayments" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("trackPayments")}>Track Payment Records</button>
         </div>
         <div>
-          {notifications.map((msg, idx) => (
-            <div className="sv-notification sv-notification-success" key={idx}>{msg}</div>
-          ))}
-        </div>
-        {activeTab === "viewInvoices" && (
+          {activeTab === "viewInvoices" && (
+            <div className="sv-tab-content">
+              <h3>Handle Invoices</h3>
+              <div className="sv-table-container">
+                <table className="sv-table sv-table-striped sv-table-rounded">
+                  <thead>
+                    <tr>
+                      <th>Invoice Name</th>
+                      <th>PO Number</th>
+                      <th>Amount</th>
+                      <th>Document</th>
+                      <th>Submission Date</th>
+                      <th>Verification</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredInvoices.length === 0 ? (
+                      <tr>
+                        <td colSpan={7}>No invoices found.</td>
+                      </tr>
+                    ) : (
+                      filteredInvoices.map((inv) => (
+                        <tr key={inv.id}>
+                          <td>{inv.name || inv.file || inv.id}</td>
+                          <td>{inv.po || inv.poNumber}</td>
+                          <td>{inv.amount || '-'}</td>
+                          <td>
+                            {inv.file ? (
+                              <a href={"#"} title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                            ) : (
+                              <span style={{color:'#888'}}>No file</span>
+                            )}
+                          </td>
+                          <td>{inv.submissionDate}</td>
+                          <td>
+                            {(inv.status === "Approved" || inv.status === "Rejected") ? (
+                              <span className={`sv-badge sv-badge-${inv.status === "Approved" ? "success" : "danger"}`}>
+                                {inv.status}
+                              </span>
+                            ) : (
+                              <>
+                                <button
+                                  className="sv-btn sv-btn-success sv-btn-highlight"
+                                  style={{ marginRight: 8, fontWeight: 'bold', boxShadow: '0 0 6px #28a745' }}
+                                  onClick={() => {
+                                    handleVerifyInvoice(inv.id, "Verified");
+                                  }}
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  className="sv-btn sv-btn-danger sv-btn-highlight"
+                                  style={{ fontWeight: 'bold', boxShadow: '0 0 6px #dc3545' }}
+                                  onClick={() => {
+                                    handleVerifyInvoice(inv.id, "Rejected");
+                                  }}
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            )}
+                          </td>
+                          <td>
+                            {(inv.status === "Approved" || inv.status === "Rejected") ? (
+                              <span className={`sv-badge sv-badge-${inv.status === "Approved" ? "success" : "danger"}`}>
+                                {inv.status}
+                              </span>
+                            ) : (
+                              <span className="sv-badge sv-badge-warning">Pending</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        {activeTab === "approvePayments" && (
           <div className="sv-tab-content">
-            <h3>Handle Invoices</h3>
+            <h3>Approve Payments</h3>
             <div className="sv-table-container">
               <table className="sv-table sv-table-striped sv-table-rounded">
                 <thead>
@@ -122,17 +215,17 @@ function FinanceDashboard() {
                     <th>Amount</th>
                     <th>Document</th>
                     <th>Submission Date</th>
-                    <th>Verification</th>
                     <th>Status</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredInvoices.length === 0 ? (
+                  {invoices.filter(inv => inv.status === "Approved").length === 0 ? (
                     <tr>
-                      <td colSpan={7}>No invoices found.</td>
+                      <td colSpan={7}>No approved invoices for payment.</td>
                     </tr>
                   ) : (
-                    filteredInvoices.map((inv) => (
+                    invoices.filter(inv => inv.status === "Approved").map((inv) => (
                       <tr key={inv.id}>
                         <td>{inv.name || inv.file || inv.id}</td>
                         <td>{inv.po || inv.poNumber}</td>
@@ -146,42 +239,18 @@ function FinanceDashboard() {
                         </td>
                         <td>{inv.submissionDate}</td>
                         <td>
-                          {(paymentStatus[inv.id] === "Verified" || paymentStatus[inv.id] === "Rejected") ? (
-                            <span className={`sv-badge sv-badge-${paymentStatus[inv.id] === "Verified" ? "success" : "danger"}`}>
-                              {paymentStatus[inv.id] === "Verified" ? "Approved" : "Rejected"}
-                            </span>
-                          ) : (
-                            <>
-                              <button
-                                className="sv-btn sv-btn-success sv-btn-highlight"
-                                style={{ marginRight: 8, fontWeight: 'bold', boxShadow: '0 0 6px #28a745' }}
-                                onClick={() => {
-                                  setPaymentStatus(prev => ({ ...prev, [inv.id]: "Verified" }));
-                                  showNotification("Invoice marked as Verified.");
-                                }}
-                              >
-                                Approve
-                              </button>
-                              <button
-                                className="sv-btn sv-btn-danger sv-btn-highlight"
-                                style={{ fontWeight: 'bold', boxShadow: '0 0 6px #dc3545' }}
-                                onClick={() => {
-                                  setPaymentStatus(prev => ({ ...prev, [inv.id]: "Rejected" }));
-                                  showNotification("Invoice marked as Rejected.");
-                                }}
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
+                          <span className="sv-badge sv-badge-success">Approved</span>
                         </td>
                         <td>
-                          {(paymentStatus[inv.id] === "Verified" || paymentStatus[inv.id] === "Rejected") ? (
-                            <span className={`sv-badge sv-badge-${paymentStatus[inv.id] === "Verified" ? "success" : "danger"}`}>
-                              {paymentStatus[inv.id] === "Verified" ? "Approved" : "Rejected"}
-                            </span>
+                          {(inv.paymentStatus === "Paid") ? (
+                            <span className="sv-badge sv-badge-completed">Paid</span>
                           ) : (
-                            <span className="sv-badge sv-badge-warning">Pending</span>
+                            <button
+                              className="sv-btn sv-btn-success"
+                              onClick={() => handleApprovePayment(inv.id)}
+                            >
+                              Mark as Paid
+                            </button>
                           )}
                         </td>
                       </tr>
@@ -192,8 +261,58 @@ function FinanceDashboard() {
             </div>
           </div>
         )}
-        {/* Approve Payments and Track Payment Records tabs intentionally left out for this request */}
+
+        {activeTab === "trackPayments" && (
+          <div className="sv-tab-content">
+            <h3>Track Payment Records</h3>
+            <div className="sv-table-container">
+              <table className="sv-table sv-table-striped sv-table-rounded">
+                <thead>
+                  <tr>
+                    <th>Invoice Name</th>
+                    <th>PO Number</th>
+                    <th>Amount</th>
+                    <th>Document</th>
+                    <th>Submission Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.length === 0 ? (
+                    <tr>
+                      <td colSpan={6}>No invoices found.</td>
+                    </tr>
+                  ) : (
+                    invoices.map((inv) => (
+                      <tr key={inv.id}>
+                        <td>{inv.name || inv.file || inv.id}</td>
+                        <td>{inv.po || inv.poNumber}</td>
+                        <td>{inv.amount || '-'}</td>
+                        <td>
+                          {inv.file ? (
+                            <a href={"#"} title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                          ) : (
+                            <span style={{color:'#888'}}>No file</span>
+                          )}
+                        </td>
+                        <td>{inv.submissionDate}</td>
+                        <td>
+                          {(inv.paymentStatus === "Paid") ? (
+                            <span className="sv-badge sv-badge-completed">Paid</span>
+                          ) : (
+                            <span className="sv-badge sv-badge-warning">Unpaid</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
+    </div>
     </MainLayout>
   );
 }

@@ -1,5 +1,6 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getActivityLogs } from '../../utils/activityLogger';
 import MainLayout from '../../components/layout/MainLayout';
 
 
@@ -9,16 +10,23 @@ const initialVendors = [
   { id: "VND-003", name: "Vendor C", email: "vendorC@example.com", status: "Approved" },
 ];
 
-const initialActivityLogs = [
-  { id: "ACT-001", type: "Tender Created", reference: "TND-001", user: "Procurement Officer", date: "2026-03-25", status: "Completed" },
-  { id: "ACT-002", type: "Bid Submitted", reference: "BID-001", user: "Vendor A", date: "2026-03-26", status: "Completed" }
-];
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("approveVendors");
   const [vendors, setVendors] = useState(initialVendors);
-  const [activityLogs] = useState(initialActivityLogs);
+  const [activityLogs, setActivityLogs] = useState(getActivityLogs());
   const [notifications, setNotifications] = useState([]);
+
+  // Live update activity logs from localStorage
+  useEffect(() => {
+    const handler = () => setActivityLogs(getActivityLogs());
+    window.addEventListener('storage', handler);
+    const interval = setInterval(handler, 2000); // also poll in case same tab
+    return () => {
+      window.removeEventListener('storage', handler);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Notification logic
   const showNotification = (msg) => {
@@ -98,8 +106,20 @@ function AdminDashboard() {
                         <td>
                           {v.status === "Pending" && (
                             <>
-                              <button className="sv-btn-primary" style={{marginRight: 6}} onClick={() => handleApprove(v.id)}>Approve</button>
-                              <button className="sv-btn-reject" onClick={() => handleReject(v.id)}>Reject</button>
+                              <button
+                                className="sv-btn sv-btn-success sv-btn-highlight"
+                                style={{ marginRight: 8, fontWeight: 'bold', boxShadow: '0 0 6px #28a745', border: '2px solid #28a745' }}
+                                onClick={() => handleApprove(v.id)}
+                              >
+                                Approve
+                              </button>
+                              <button
+                                className="sv-btn sv-btn-danger sv-btn-highlight"
+                                style={{ fontWeight: 'bold', boxShadow: '0 0 6px #dc3545', border: '2px solid #dc3545' }}
+                                onClick={() => handleReject(v.id)}
+                              >
+                                Reject
+                              </button>
                             </>
                           )}
                         </td>
