@@ -15,7 +15,12 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // Remember Me removed
+  const [showForgot, setShowForgot] = useState(false);
+  const [resetMsg, setResetMsg] = useState("");
   const navigate = useNavigate();
+
+  // Remember Me logic removed
 
   const passwordValid = (pw) => {
     return (
@@ -40,6 +45,7 @@ function Login() {
     // Save role and username in localStorage (mock auth)
     localStorage.setItem("userRole", role);
     localStorage.setItem("username", username);
+    // Remember Me logic removed
     // Redirect to dashboard
     switch (role) {
       case "admin":
@@ -57,6 +63,15 @@ function Login() {
     }
   };
 
+  const handleForgot = (e) => {
+    e.preventDefault();
+    setShowForgot(true);
+    // Simulate password reset
+    setTimeout(() => {
+      setResetMsg("If this username exists, a password reset link has been sent to your email.");
+    }, 1200);
+  };
+
   return (
     <div className="auth-container">
       <h2>Login</h2>
@@ -72,8 +87,11 @@ function Login() {
         <label>Password
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
         </label>
+        {/* Remember Me removed as requested */}
         {error && <div className="auth-error">{error}</div>}
         <button type="submit" className="sv-btn sv-btn-success sv-btn-highlight">Login</button>
+        <button type="button" className="sv-btn sv-btn-link" style={{marginTop:8, color:'#007bff',textDecoration:'underline'}} onClick={handleForgot}>Forgot Password?</button>
+        {showForgot && <div style={{marginTop:8, color:'#28a745'}}>{resetMsg || 'Processing...'}</div>}
         <div style={{marginTop:8}}>
           Don't have an account? <a href="/signup">Sign up</a>
         </div>

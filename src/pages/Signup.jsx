@@ -10,9 +10,11 @@ const roles = [
   { value: "admin", label: "Admin" },
 ];
 
+
 function Signup() {
   const [role, setRole] = useState(roles[0].value);
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -29,8 +31,13 @@ function Signup() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!username || !password) {
-      setError("Please enter username and password.");
+    if (!username || !email || !password) {
+      setError("Please enter username, email, and password.");
+      return;
+    }
+    // Simple email validation
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
     if (!passwordValid(password)) {
@@ -40,6 +47,7 @@ function Signup() {
     // Save user to localStorage (mock signup)
     localStorage.setItem("userRole", role);
     localStorage.setItem("username", username);
+    localStorage.setItem("email", email);
     // Redirect to login page after signup
     navigate("/login");
   };
@@ -55,6 +63,9 @@ function Signup() {
         </label>
         <label>Username
           <input value={username} onChange={e => setUsername(e.target.value)} />
+        </label>
+        <label>Email
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
         </label>
         <label>Password
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
