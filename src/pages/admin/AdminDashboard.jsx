@@ -1,7 +1,13 @@
 
 import React, { useState, useEffect } from "react";
-import { getActivityLogs } from '../../utils/activityLogger';
 import MainLayout from '../../components/layout/MainLayout';
+import {
+  saveVendorRegistration,
+  subscribeActivityLogs,
+  subscribeAllVendorRegistrations,
+} from '../../services/dataService';
+import { logActivity } from '../../utils/activityLogger';
+import '../../styles/DashboardStyles.css';
 
 
 const initialVendors = [
@@ -14,17 +20,19 @@ const initialVendors = [
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("approveVendors");
   const [vendors, setVendors] = useState(initialVendors);
-  const [activityLogs, setActivityLogs] = useState(getActivityLogs());
+  const [activityLogs, setActivityLogs] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [updatingVendorId, setUpdatingVendorId] = useState(null);
 
-  // Live update activity logs from localStorage
+  // Poll persisted activity logs to keep admin monitoring updated.
   useEffect(() => {
-    const handler = () => setActivityLogs(getActivityLogs());
-    window.addEventListener('storage', handler);
-    const interval = setInterval(handler, 2000); // also poll in case same tab
+    const unsubscribeVendors = subscribeAllVendorRegistrations((items) => {
+      setVendors(items.length ? items : initialVendors);
+    });
+    const unsubscribe = subscribeActivityLogs(setActivityLogs, []);
     return () => {
-      window.removeEventListener('storage', handler);
-      clearInterval(interval);
+      unsubscribeVendors();
+      unsubscribe();
     };
   }, []);
 
@@ -37,13 +45,57 @@ function AdminDashboard() {
   };
 
   // Approve/Reject logic
-  const handleApprove = (id) => {
-    setVendors((prev) => prev.map(v => v.id === id ? { ...v, status: "Approved" } : v));
-    showNotification(`Vendor ${id} approved.`);
+  const getVendorRowId = (vendor) => vendor.id || vendor.ownerUid;
+
+  const handleApprove = async (id) => {
+    setUpdatingVendorId(id);
+    const nextVendors = vendors.map((v) =>
+      getVendorRowId(v) === id ? { ...v, status: 'Approved' } : v
+    );
+    setVendors(nextVendors);
+
+    const targetVendor = nextVendors.find((vendor) => getVendorRowId(vendor) === id);
+    try {
+      if (targetVendor?.ownerUid) {
+        await saveVendorRegistration(targetVendor.ownerUid, targetVendor);
+      }
+      logActivity({
+        type: 'Vendor Registration Approved',
+        reference: id,
+        user: 'Admin User',
+        status: 'Approved',
+      }).catch(() => {});
+      showNotification(`Vendor ${id} approved.`);
+    } catch {
+      showNotification(`Failed to approve vendor ${id}.`);
+    } finally {
+      setUpdatingVendorId(null);
+    }
   };
-  const handleReject = (id) => {
-    setVendors((prev) => prev.map(v => v.id === id ? { ...v, status: "Rejected" } : v));
-    showNotification(`Vendor ${id} rejected.`);
+  const handleReject = async (id) => {
+    setUpdatingVendorId(id);
+    const nextVendors = vendors.map((v) =>
+      getVendorRowId(v) === id ? { ...v, status: 'Rejected' } : v
+    );
+    setVendors(nextVendors);
+
+    const targetVendor = nextVendors.find((vendor) => getVendorRowId(vendor) === id);
+    try {
+      if (targetVendor?.ownerUid) {
+        await saveVendorRegistration(targetVendor.ownerUid, targetVendor);
+      }
+      logActivity({
+        type: 'Vendor Registration Rejected',
+        reference: id,
+        user: 'Admin User',
+        status: 'Rejected',
+      }).catch(() => {});
+      showNotification(`Vendor ${id} rejected.`);
+    } catch {
+      showNotification(`Failed to reject vendor ${id}.`);
+    } finally {
+      setUpdatingVendorId(null);
+    }
   };
 
   // Dummy stats for reports
@@ -85,8 +137,10 @@ function AdminDashboard() {
                 <thead>
                   <tr>
                     <th>Vendor ID</th>
-                    <th>Vendor Name</th>
+                    <th>Company Name</th>
+                    <th>Registration No.</th>
                     <th>Email</th>
+                    <th>Documents</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -94,31 +148,73 @@ function AdminDashboard() {
                 <tbody>
                   {vendors.length === 0 ? (
                     <tr>
-                      <td colSpan={5}>No vendors found.</td>
+                      <td colSpan={7}>No vendors found.</td>
                     </tr>
                   ) : (
                     vendors.map((v) => (
-                      <tr key={v.id}>
-                        <td>{v.id}</td>
-                        <td>{v.name}</td>
-                        <td>{v.email}</td>
-                        <td>{v.status}</td>
+                      <tr key={getVendorRowId(v)}>
+                        <td>{getVendorRowId(v)}</td>
+                        <td>{v.companyName || v.name}</td>
+                        <td>{v.registrationNumber || '-'}</td>
+                        <td>{v.vendorEmail || v.email}</td>
+                        <td>
+                          {Array.isArray(v.documents) && v.documents.length ? (
+                            <div style={{ display: 'grid', gap: 4 }}>
+                              {v.documents.map((doc) => (
+                                <a key={doc.id} href={doc.fileUrl || '#'} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline', color: '#1d4ed8' }}>
+                                  {doc.name}
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#6b7280' }}>No documents</span>
+                          )}
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              minWidth: 88,
+                              textAlign: 'center',
+                              padding: '4px 10px',
+                              borderRadius: 999,
+                              fontWeight: 600,
+                              fontSize: 12,
+                              color:
+                                v.status === 'Approved'
+                                  ? '#14532d'
+                                  : v.status === 'Rejected'
+                                  ? '#7f1d1d'
+                                  : '#78350f',
+                              background:
+                                v.status === 'Approved'
+                                  ? '#dcfce7'
+                                  : v.status === 'Rejected'
+                                  ? '#fee2e2'
+                                  : '#fef3c7',
+                            }}
+                          >
+                            {v.status}
+                          </span>
+                        </td>
                         <td>
                           {v.status === "Pending" && (
                             <>
                               <button
                                 className="sv-btn sv-btn-success sv-btn-highlight"
                                 style={{ marginRight: 8, fontWeight: 'bold', boxShadow: '0 0 6px #28a745', border: '2px solid #28a745' }}
-                                onClick={() => handleApprove(v.id)}
+                                onClick={() => handleApprove(getVendorRowId(v))}
+                                disabled={updatingVendorId === getVendorRowId(v)}
                               >
-                                Approve
+                                {updatingVendorId === getVendorRowId(v) ? 'Updating...' : 'Approve'}
                               </button>
                               <button
                                 className="sv-btn sv-btn-danger sv-btn-highlight"
                                 style={{ fontWeight: 'bold', boxShadow: '0 0 6px #dc3545', border: '2px solid #dc3545' }}
-                                onClick={() => handleReject(v.id)}
+                                onClick={() => handleReject(getVendorRowId(v))}
+                                disabled={updatingVendorId === getVendorRowId(v)}
                               >
-                                Reject
+                                {updatingVendorId === getVendorRowId(v) ? 'Updating...' : 'Reject'}
                               </button>
                             </>
                           )}

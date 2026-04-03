@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AppRoutes from './routes/AppRoutes';
+import { AuthProvider } from './context/AuthContext';
+import { clearLegacyLocalStorage } from './utils/clearLegacyLocalStorage';
 
 function App() {
-  return <AppRoutes />;
+  useEffect(() => {
+    clearLegacyLocalStorage();
+  }, []);
+
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
 }
 
 export default App;

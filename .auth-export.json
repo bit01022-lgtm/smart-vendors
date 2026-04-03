@@ -1,0 +1,51 @@
+{"users": [
+{
+  "localId": "2Rd4TCRWMuegK93CYYVSmmHp9gg1",
+  "email": "musyokafaith03@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "LRKTBrKBTCvRorcmlmJh+FzduJRSn8ynJ0RxWrBwSn6el3oCwqWq1iz+p3/U3+ePUJBzlK1Yk20aiXikRbmN5Q==",
+  "salt": "EbAsW49widdshw==",
+  "lastSignedInAt": "1775197417796",
+  "createdAt": "1775197417796",
+  "providerUserInfo": []
+},
+{
+  "localId": "ftyUfqdvdPMvbTuZpncVpUwDvbC3",
+  "email": "bit01022@uoeld.ac.ke",
+  "emailVerified": false,
+  "passwordHash": "rWRPDWvlOfWMkUFEFI7r7BF0jnKtVqCz1s7DA9qg9z/Sw14ZybNDsJT7jGtd0YtVY2lHytKKm17Wmi1j9qdY4g==",
+  "salt": "tA/IiP6CSdDfPQ==",
+  "lastSignedInAt": "1775197342566",
+  "createdAt": "1775193381705",
+  "providerUserInfo": []
+},
+{
+  "localId": "ihbHLcGxcZYNiYSkwrpS2cnobYx1",
+  "email": "crda624@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "5CmLf6JeeVLYRbZ3yHHI0K81WZMxbQuDBdnJL4S0dxZxYsUUPHS750MgKKGCdTIp2Nd2Ej89pBHX/HL+3OAqwQ==",
+  "salt": "Ucg1L2jCmIl8XQ==",
+  "lastSignedInAt": "1775196412492",
+  "createdAt": "1775149348772",
+  "providerUserInfo": []
+},
+{
+  "localId": "omQV0iPm0YSHl5Z1MElN1duvgHI3",
+  "email": "musyokafaith41@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "jD31gB8xJ3e3dAT3ZB0iUJon4J1CLypOLqHTyzOS8LdX57r085EIMXXcEQSqflOQlC7pNoQOPnXpTeLWMWtkSA==",
+  "salt": "RkdXPbybyfgtqg==",
+  "lastSignedInAt": "1775195996559",
+  "createdAt": "1775193633586",
+  "providerUserInfo": []
+},
+{
+  "localId": "qL3NdHrge4O8sVOTbWB36GaqQs73",
+  "email": "musyokafaith311@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "x9lCMotru0p18nJPWUCbgyUlFnxe9CXSQI1rsJNkc37lynJQ9BPuBGVL58hgUlqm7ILTTrdRBw9bfHPz4mYI0w==",
+  "salt": "J9I1gLWIJuCWsw==",
+  "lastSignedInAt": "1775197305470",
+  "createdAt": "1775152891810",
+  "providerUserInfo": []
+}]}

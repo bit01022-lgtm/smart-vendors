@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/AuthStyles.css';
+import { loginUser } from '../services/authService';
 
 const rolePathMap = {
   admin: '/admin',
@@ -12,7 +13,7 @@ const rolePathMap = {
 
 function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
 
   const handleChange = (event) => {
@@ -20,36 +21,100 @@ function Login() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
 
-    const users = JSON.parse(localStorage.getItem('sv_users') || '[]');
-    const user = users.find(
-      (item) => item.username === form.username.trim() && item.password === form.password
-    );
+    try {
+      const profile = await loginUser({
+        identifier: form.identifier,
+        password: form.password,
+      });
+      const rolePath = rolePathMap[profile.role] || '/client';
 
-    if (!user) {
-      setError('Invalid username or password.');
-      return;
+      navigate(rolePath);
+    } catch (authError) {
+      if (authError.message === 'EMAIL_REQUIRED') {
+        setError('Please login using your email address.');
+        return;
+      }
+
+      if (authError.code === 'INVALID_CREDENTIALS') {
+        setError('Invalid email or password.');
+        return;
+      }
+
+      if (authError.code === 'UNAUTHORIZED' || authError.code === 'INVALID_TOKEN') {
+        setError('Your session has expired. Please login again.');
+        return;
+      }
+
+      if (authError.code === 'auth/operation-not-allowed') {
+        setError('Email/password sign-in is currently disabled. Please contact support.');
+        return;
+      }
+
+      if (authError.code === 'auth/invalid-credential') {
+        setError('Invalid email or password.');
+        return;
+      }
+
+      if (authError.code === 'auth/invalid-login-credentials') {
+        setError('Invalid email or password.');
+        return;
+      }
+
+      if (authError.code === 'auth/user-not-found') {
+        setError('No account exists with that email.');
+        return;
+      }
+
+      if (authError.code === 'auth/wrong-password') {
+        setError('Invalid email or password.');
+        return;
+      }
+
+      if (authError.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please wait and try again.');
+        return;
+      }
+
+      if (authError.code === 'auth/network-request-failed') {
+        setError('Network issue detected. Check your connection and try again.');
+        return;
+      }
+
+      if (authError.code === 'auth/invalid-api-key') {
+        setError('Authentication configuration is invalid. Please contact support.');
+        return;
+      }
+
+      if (authError.code === 'permission-denied') {
+        setError('Access denied while loading profile. Please contact support.');
+        return;
+      }
+
+      if (authError.message === 'PROFILE_NOT_FOUND') {
+        setError('Account profile is missing. Please contact support.');
+        return;
+      }
+
+      console.error('Login error:', authError);
+      setError('Unable to login right now. Please try again.');
     }
-
-    const rolePath = rolePathMap[user.role] || '/client';
-    localStorage.setItem('sv_session', JSON.stringify({ username: user.username, role: user.role }));
-    navigate(rolePath);
   };
 
   return (
     <div className="auth-container">
       <h2 className="auth-title">Login</h2>
       <form className="auth-form" onSubmit={handleSubmit}>
-        <label className="auth-label" htmlFor="username">Username</label>
+        <label className="auth-label" htmlFor="identifier">Email</label>
         <input
-          id="username"
+          id="identifier"
           className="auth-input"
-          name="username"
+          name="identifier"
           type="text"
-          value={form.username}
+          value={form.identifier}
           onChange={handleChange}
           required
         />

@@ -1,8 +1,11 @@
 
-
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from '../../components/layout/MainLayout';
+import {
+  saveClientRequests,
+  subscribeClientRequests,
+} from '../../services/dataService';
+import { logActivity } from '../../utils/activityLogger';
 
 import '../../styles/DashboardStyles.css';
 
@@ -15,20 +18,12 @@ const categoryOptions = {
 };
 const priorityOptions = ["Low", "Medium", "High"];
 
-const preloadedRequests = [
-  { id: "REQ-001", title: "Office Supplies", category: "Office Supplies", subcategory: "-", priority: "Medium", budgetMin: "100", budgetMax: "200", dateRequired: "2026-03-25", status: "Pending" },
-  { id: "REQ-002", title: "Laptop Purchase", category: "Computing Hardware", subcategory: "Laptops", priority: "High", budgetMin: "800", budgetMax: "1200", dateRequired: "2026-03-28", status: "Approved" },
-  { id: "REQ-003", title: "Projector Repair", category: "Consumer Electronics", subcategory: "Projector", priority: "Low", budgetMin: "50", budgetMax: "100", dateRequired: "2026-03-22", status: "Rejected" },
-];
+const preloadedRequests = [];
 
 function ClientDashboard() {
   // ...existing code...
   const [activeTab, setActiveTab] = useState("submit");
-  // Load requests from localStorage if available
-  const [requests, setRequests] = useState(() => {
-    const stored = localStorage.getItem('clientRequests');
-    return stored ? JSON.parse(stored) : preloadedRequests;
-  });
+  const [requests, setRequests] = useState(preloadedRequests);
   const [form, setForm] = useState({
     clientName: "Demo Client",
     title: "",
@@ -49,11 +44,13 @@ function ClientDashboard() {
     setTimeout(() => setNotification(""), 3000);
   };
 
+  useEffect(() => {
+    const unsubscribe = subscribeClientRequests(setRequests, preloadedRequests);
+    return unsubscribe;
+  }, []);
+
   // Generate next request ID
-  const getNextRequestId = () => {
-    const num = requests.length + 1;
-    return `REQ-${num.toString().padStart(3, "0")}`;
-  };
+  const getNextRequestId = () => `REQ-${Date.now()}`;
 
   // Prevent past dates
   const today = new Date().toISOString().split("T")[0];
@@ -75,8 +72,18 @@ function ClientDashboard() {
   };
 
   // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const attachmentMeta = form.attachment
+      ? {
+        name: form.attachment.name,
+        size: form.attachment.size,
+        type: form.attachment.type,
+        lastModified: form.attachment.lastModified,
+      }
+      : null;
+
     const newRequest = {
       id: getNextRequestId(),
       clientName: form.clientName || "Demo Client",
@@ -88,14 +95,22 @@ function ClientDashboard() {
       budgetMin: form.budgetMin,
       budgetMax: form.budgetMax,
       dateRequired: form.dateRequired,
-      attachment: form.attachment,
+      attachment: attachmentMeta,
       status: "Pending",
+      source: "v2",
+      createdAt: new Date().toISOString(),
     };
-    setRequests((prev) => {
-      const updated = [...prev, newRequest];
-      localStorage.setItem('clientRequests', JSON.stringify(updated));
-      return updated;
-    });
+
+    const updatedRequests = [...requests, newRequest];
+    setRequests(updatedRequests);
+    try {
+      await saveClientRequests(updatedRequests);
+    } catch {
+      setRequests(requests);
+      showNotification("Failed to save request. Please try again.");
+      return;
+    }
+
     setForm({
       clientName: "Demo Client",
       title: "",
@@ -108,6 +123,12 @@ function ClientDashboard() {
       dateRequired: "",
       attachment: null,
     });
+    logActivity({
+      type: 'Client Request Submitted',
+      reference: newRequest.id,
+      user: newRequest.clientName || 'Client User',
+      status: newRequest.status,
+    }).catch(() => {});
     showNotification("Request submitted.");
   };
 
@@ -284,10 +305,28 @@ function ClientDashboard() {
                         <td>
                           {editId === req.id ? (
                             <>
-                              <button onClick={() => {
-                                setRequests(prev => prev.map(r => r.id === req.id ? { ...r, title: editRequest.title } : r));
+                              <button onClick={async () => {
+                                const updatedRequests = requests.map((r) =>
+                                  r.id === req.id ? { ...r, title: editRequest.title } : r
+                                );
+
+                                setRequests(updatedRequests);
+                                try {
+                                  await saveClientRequests(updatedRequests);
+                                } catch {
+                                  setRequests(requests);
+                                  showNotification("Failed to update request.");
+                                  return;
+                                }
+
                                 setEditId(null);
                                 setEditRequest({});
+                                logActivity({
+                                  type: 'Client Request Updated',
+                                  reference: req.id,
+                                  user: req.clientName || 'Client User',
+                                  status: req.status || 'Pending',
+                                }).catch(() => {});
                                 showNotification("Request updated.");
                               }}>Save</button>
                               <button onClick={() => { setEditId(null); setEditRequest({}); }}>Cancel</button>
@@ -297,8 +336,24 @@ function ClientDashboard() {
                           )}
                         </td>
                         <td>
-                          <button onClick={() => {
-                            setRequests(prev => prev.filter(r => r.id !== req.id));
+                          <button onClick={async () => {
+                            const updatedRequests = requests.filter((r) => r.id !== req.id);
+
+                            setRequests(updatedRequests);
+                            try {
+                              await saveClientRequests(updatedRequests);
+                            } catch {
+                              setRequests(requests);
+                              showNotification("Failed to delete request.");
+                              return;
+                            }
+
+                            logActivity({
+                              type: 'Client Request Deleted',
+                              reference: req.id,
+                              user: req.clientName || 'Client User',
+                              status: req.status || 'Pending',
+                            }).catch(() => {});
                             showNotification("Request deleted.");
                           }}>Delete</button>
                         </td>

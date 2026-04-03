@@ -1,96 +1,56 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from '../../components/layout/MainLayout';
+import { saveAllVendorInvoices, subscribeAllVendorInvoices } from '../../services/dataService';
+import { logActivity } from '../../utils/activityLogger';
 
 import '../../styles/DashboardStyles.css';
 
 function FinanceDashboard() {
   const [activeTab, setActiveTab] = useState("viewInvoices");
-  const [invoices, setInvoices] = useState(() => {
-    const stored = localStorage.getItem('vendorInvoices');
-    return stored ? JSON.parse(stored) : [];
-  });
-  const [notifications, setNotifications] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [editInvoice, setEditInvoice] = useState({});
-  const [filters, setFilters] = useState({ vendor: "", poNumber: "", status: "", amount: "" });
+  const [invoices, setInvoices] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeAllVendorInvoices(setInvoices);
+    return unsubscribe;
+  }, []);
 
   // Notification logic
-  const showNotification = (msg) => {
-    setNotifications((prev) => [...prev, msg]);
-    setTimeout(() => {
-      setNotifications((prev) => prev.slice(1));
-    }, 3000);
-  };
+  const showNotification = () => {};
 
-  // Edit logic
-  const handleEdit = (invoice) => {
-    setEditId(invoice.id);
-    setEditInvoice({ ...invoice });
-  };
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditInvoice((prev) => ({ ...prev, [name]: value }));
-  };
-  const handleEditSave = () => {
-    setInvoices((prev) =>
-      prev.map((inv) => (inv.id === editId ? { ...editInvoice, amount: Number(editInvoice.amount) } : inv))
-    );
-    setEditId(null);
-    setEditInvoice({});
-    showNotification("Invoice updated.");
-  };
-  const handleEditCancel = () => {
-    setEditId(null);
-    setEditInvoice({});
-  };
-
-  // Delete logic
-  const handleDelete = (id) => {
-    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
-    showNotification("Invoice deleted.");
-  };
-
-  // Download placeholder
-  const handleDownload = (id) => {
-    showNotification(`Download for invoice ${id} (not implemented)`);
-  };
-
-  // Filter logic
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-  const filteredInvoices = invoices.filter((inv) => {
-    return (
-      (filters.vendor === "" || inv.vendorName.toLowerCase().includes(filters.vendor.toLowerCase())) &&
-      (filters.poNumber === "" || inv.poNumber.toLowerCase().includes(filters.poNumber.toLowerCase())) &&
-      (filters.status === "" || inv.status.toLowerCase().includes(filters.status.toLowerCase())) &&
-      (filters.amount === "" || String(inv.amount).includes(filters.amount))
-    );
-  });
+  const filteredInvoices = invoices;
 
   // Payment status logic
   // Persist verification status in invoice object
-  const handleVerifyInvoice = (id, status) => {
-    setInvoices((prev) => {
-      const updated = prev.map(inv =>
-        inv.id === id ? { ...inv, status: status === "Verified" ? "Approved" : "Rejected" } : inv
-      );
-      localStorage.setItem('vendorInvoices', JSON.stringify(updated));
-      return updated;
-    });
+  const handleVerifyInvoice = (invoiceId, ownerUid, status) => {
+    const updated = invoices.map((inv) =>
+      inv.id === invoiceId && inv.ownerUid === ownerUid
+        ? { ...inv, status: status === "Verified" ? "Approved" : "Rejected" }
+        : inv
+    );
+    setInvoices(updated);
+    saveAllVendorInvoices(updated).catch(() => {});
+    logActivity({
+      type: 'Invoice Verification',
+      reference: invoiceId,
+      user: 'Finance User',
+      status: status === "Verified" ? 'Approved' : 'Rejected',
+    }).catch(() => {});
     showNotification(`Invoice marked as ${status === "Verified" ? "Approved" : "Rejected"}.`);
   };
   // Persist payment status in invoice object
-  const handleApprovePayment = (id) => {
-    setInvoices((prev) => {
-      const updated = prev.map(inv =>
-        inv.id === id ? { ...inv, paymentStatus: "Paid" } : inv
-      );
-      localStorage.setItem('vendorInvoices', JSON.stringify(updated));
-      return updated;
-    });
+  const handleApprovePayment = (invoiceId, ownerUid) => {
+    const updated = invoices.map((inv) =>
+      inv.id === invoiceId && inv.ownerUid === ownerUid ? { ...inv, paymentStatus: "Paid" } : inv
+    );
+    setInvoices(updated);
+    saveAllVendorInvoices(updated).catch(() => {});
+    logActivity({
+      type: 'Payment Approved',
+      reference: invoiceId,
+      user: 'Finance User',
+      status: 'Paid',
+    }).catch(() => {});
     showNotification("Payment approved.");
   };
 
@@ -169,7 +129,7 @@ function FinanceDashboard() {
                                   className="sv-btn sv-btn-success sv-btn-highlight"
                                   style={{ marginRight: 8, fontWeight: 'bold', boxShadow: '0 0 6px #28a745' }}
                                   onClick={() => {
-                                    handleVerifyInvoice(inv.id, "Verified");
+                                    handleVerifyInvoice(inv.id, inv.ownerUid, "Verified");
                                   }}
                                 >
                                   Approve
@@ -178,7 +138,7 @@ function FinanceDashboard() {
                                   className="sv-btn sv-btn-danger sv-btn-highlight"
                                   style={{ fontWeight: 'bold', boxShadow: '0 0 6px #dc3545' }}
                                   onClick={() => {
-                                    handleVerifyInvoice(inv.id, "Rejected");
+                                    handleVerifyInvoice(inv.id, inv.ownerUid, "Rejected");
                                   }}
                                 >
                                   Reject
@@ -232,7 +192,7 @@ function FinanceDashboard() {
                         <td>{inv.amount || '-'}</td>
                         <td>
                           {inv.file ? (
-                            <a href={"#"} title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                            <a href={inv.fileUrl || '#'} target="_blank" rel="noreferrer" title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
                           ) : (
                             <span style={{color:'#888'}}>No file</span>
                           )}
@@ -247,7 +207,7 @@ function FinanceDashboard() {
                           ) : (
                             <button
                               className="sv-btn sv-btn-success"
-                              onClick={() => handleApprovePayment(inv.id)}
+                              onClick={() => handleApprovePayment(inv.id, inv.ownerUid)}
                             >
                               Mark as Paid
                             </button>
@@ -290,7 +250,7 @@ function FinanceDashboard() {
                         <td>{inv.amount || '-'}</td>
                         <td>
                           {inv.file ? (
-                            <a href={"#"} title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                            <a href={inv.fileUrl || '#'} target="_blank" rel="noreferrer" title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
                           ) : (
                             <span style={{color:'#888'}}>No file</span>
                           )}

@@ -1,9 +1,16 @@
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import MainLayout from '../../components/layout/MainLayout';
 import HandleRequestsTab from './HandleRequestsTab';
+import {
+  saveProcurementTenders,
+  saveProcurementBids,
+  subscribeProcurementTenders,
+  subscribeProcurementBids,
+} from '../../services/dataService';
+import { logActivity } from '../../utils/activityLogger';
 
 import '../../styles/DashboardStyles.css';
 
@@ -68,20 +75,6 @@ const initialBids = [
 ];
 
 function ProcurementDashboard() {
-          // Keep bids in sync with localStorage if changed elsewhere (e.g., another tab)
-          React.useEffect(() => {
-            const handler = () => {
-              const stored = localStorage.getItem('procurementBids');
-              if (stored) {
-                try {
-                  const parsed = JSON.parse(stored);
-                  if (Array.isArray(parsed)) setBids(parsed);
-                } catch {}
-              }
-            };
-            window.addEventListener('storage', handler);
-            return () => window.removeEventListener('storage', handler);
-          }, []);
       // Helper functions
       function getNextTenderId() {
         const num = tenders.length + 1;
@@ -100,19 +93,35 @@ function ProcurementDashboard() {
           setForm((prev) => ({ ...prev, [name]: value }));
         }
       }
-      function handleSubmit(e) {
+      async function handleSubmit(e) {
         e.preventDefault();
-        const newTender = {
-          id: getNextTenderId(),
-          title: form.title,
-          category: form.category,
-          subcategory: form.subcategory,
-          budget: { min: Number(form.budgetMin), max: Number(form.budgetMax) },
-          deadline: form.deadline,
-          status: "Open",
-          attachments: form.attachments,
-        };
-        setTenders((prev) => [...prev, newTender]);
+        const nextTenders = [
+          ...tenders,
+          {
+            id: getNextTenderId(),
+            title: form.title,
+            category: form.category,
+            subcategory: form.subcategory,
+            budget: { min: Number(form.budgetMin), max: Number(form.budgetMax) },
+            deadline: form.deadline,
+            status: "Open",
+            attachments: form.attachments.map((file) => ({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+            })),
+          },
+        ];
+
+        setTenders(nextTenders);
+
+        try {
+          await saveProcurementTenders(nextTenders);
+        } catch {
+          showNotification("Unable to save tender. Please try again.");
+          return;
+        }
+
         setForm({
           title: "",
           description: "",
@@ -123,23 +132,33 @@ function ProcurementDashboard() {
           deadline: "",
           attachments: [],
         });
+        logActivity({
+          type: 'Tender Created',
+          reference: nextTenders[nextTenders.length - 1]?.id || 'TENDER',
+          user: 'Procurement User',
+          status: 'Open',
+        }).catch(() => {});
         showNotification("Tender created.");
       }
       function handleSelectWinnerTender(e) {
         setWinnerTenderId(e.target.value);
-        setSelectedBidId("");
       }
       function handleSelectWinner(bidId) {
-        setBids((prev) => {
-          const tenderId = winnerTenderId;
-          const updated = prev.map((bid) =>
-            bid.tenderId === tenderId
-              ? { ...bid, status: bid.id === bidId ? "Winner" : "Rejected" }
-              : bid
-          );
-          localStorage.setItem('procurementBids', JSON.stringify(updated));
-          return updated;
-        });
+        const tenderId = winnerTenderId;
+        const updated = bids.map((bid) =>
+          bid.tenderId === tenderId
+            ? { ...bid, status: bid.id === bidId ? "Winner" : "Rejected" }
+            : bid
+        );
+
+        setBids(updated);
+        saveProcurementBids(updated).catch(() => {});
+        logActivity({
+          type: 'Winning Vendor Selected',
+          reference: tenderId || 'TENDER',
+          user: 'Procurement User',
+          status: 'Winner Selected',
+        }).catch(() => {});
         showNotification("Winner selected.");
       }
       function handlePoTenderChange(e) {
@@ -149,7 +168,7 @@ function ProcurementDashboard() {
       function handlePoVendorChange(e) {
         const vendor = e.target.value;
         const bid = bids.find(
-          (b) => b.tenderId === poForm.tenderId && b.vendor === vendor && b.status === "Winner"
+          (b) => b.tenderId === poForm.tenderId && b.vendor === vendor
         );
         setPoForm((prev) => ({
           ...prev,
@@ -162,8 +181,20 @@ function ProcurementDashboard() {
         const { name, value } = e.target;
         setPoForm((prev) => ({ ...prev, [name]: value }));
       }
-      function handlePoSubmit(e) {
+      async function handlePoSubmit(e) {
         e.preventDefault();
+        const nextTenders = tenders.map((t) =>
+          t.id === poForm.tenderId ? { ...t, status: "Closed" } : t
+        );
+
+        setTenders(nextTenders);
+        try {
+          await saveProcurementTenders(nextTenders);
+        } catch {
+          showNotification("Unable to update tender status. Please try again.");
+          return;
+        }
+
         setPurchaseOrders((prev) => [
           ...prev,
           {
@@ -171,11 +202,6 @@ function ProcurementDashboard() {
             poNumber: getNextPoNumber(),
           },
         ]);
-        setTenders((prev) =>
-          prev.map((t) =>
-            t.id === poForm.tenderId ? { ...t, status: "Closed" } : t
-          )
-        );
         setPoForm({
           tenderId: "",
           vendor: "",
@@ -184,21 +210,17 @@ function ProcurementDashboard() {
           amount: "",
           notes: "",
         });
+        logActivity({
+          type: 'Purchase Order Issued',
+          reference: poForm.tenderId || 'PO',
+          user: 'Procurement User',
+          status: 'Closed',
+        }).catch(() => {});
         showNotification("Purchase order issued.");
       }
     // State for tenders, bids, form, purchase orders, etc.
     const [tenders, setTenders] = useState(initialTenders);
-    // Load bids from localStorage if available
-    const [bids, setBids] = useState(() => {
-      const stored = localStorage.getItem('procurementBids');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) return parsed;
-        } catch {}
-      }
-      return initialBids;
-    });
+    const [bids, setBids] = useState(initialBids);
     const [form, setForm] = useState({
       title: "",
       description: "",
@@ -220,7 +242,6 @@ function ProcurementDashboard() {
     });
     const [purchaseOrders, setPurchaseOrders] = useState([]);
     const [winnerTenderId, setWinnerTenderId] = useState("");
-    const [selectedBidId, setSelectedBidId] = useState("");
   const [activeTab, setActiveTab] = useState("handleRequests");
   // Notification state and function
   const [notification, setNotification] = useState("");
@@ -228,6 +249,15 @@ function ProcurementDashboard() {
     setNotification(msg);
     setTimeout(() => setNotification(""), 3000);
   };
+
+  useEffect(() => {
+    const unsubscribeTenders = subscribeProcurementTenders(setTenders, initialTenders);
+    const unsubscribe = subscribeProcurementBids(setBids, initialBids);
+    return () => {
+      unsubscribeTenders();
+      unsubscribe();
+    };
+  }, []);
 
 
   // --- Helper and handler functions moved above ---
@@ -498,9 +528,15 @@ function ProcurementDashboard() {
                   <label>Select Vendor: </label>
                   <select name="vendor" value={poForm.vendor} onChange={handlePoVendorChange} required disabled={!poForm.tenderId}>
                     <option value="">Select Vendor</option>
-                    {bids.filter((b) => b.tenderId === poForm.tenderId && b.status === "Winner").map((b) => (
-                      <option key={b.vendor} value={b.vendor}>{b.vendor}</option>
-                    ))}
+                    {bids.filter((b) => b.tenderId === poForm.tenderId).length === 0 ? (
+                      <option value="" disabled>No vendor bids for this tender</option>
+                    ) : (
+                      bids
+                        .filter((b) => b.tenderId === poForm.tenderId)
+                        .map((b) => (
+                          <option key={b.id} value={b.vendor}>{b.vendor}</option>
+                        ))
+                    )}
                   </select>
                 </div>
                 <div className="sv-form-group">
@@ -513,7 +549,7 @@ function ProcurementDashboard() {
                 </div>
                 <div className="sv-form-group">
                   <label>Amount: </label>
-                  <input name="amount" type="number" value={poForm.amount} readOnly />
+                  <input name="amount" type="number" value={poForm.amount} onChange={handlePoInputChange} required />
                 </div>
                 <div className="sv-form-group">
                   <label>Notes: </label>

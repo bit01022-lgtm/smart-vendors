@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/AuthStyles.css';
+import { registerUser } from '../services/authService';
 
 const roleOptions = ['client', 'procurement', 'vendor', 'finance', 'admin'];
 
 function Signup() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: '',
     username: '',
     email: '',
     password: '',
@@ -20,46 +20,61 @@ function Signup() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
 
-    const users = JSON.parse(localStorage.getItem('sv_users') || '[]');
-    const username = form.username.trim();
-    const exists = users.some((user) => user.username === username);
+    try {
+      await registerUser(form);
+      navigate('/login');
+    } catch (authError) {
+      if (authError.message === 'USERNAME_TAKEN') {
+        setError('That username is already taken.');
+        return;
+      }
 
-    if (exists) {
-      setError('That username is already taken.');
-      return;
+      if (authError.code === 'USERNAME_TAKEN') {
+        setError('That username is already taken.');
+        return;
+      }
+
+      if (authError.code === 'EMAIL_IN_USE') {
+        setError('That email is already registered.');
+        return;
+      }
+
+      if (authError.code === 'WEAK_PASSWORD') {
+        setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
+        return;
+      }
+
+      if (authError.code === 'INVALID_ROLE') {
+        setError('Selected role is not allowed for self-signup.');
+        return;
+      }
+
+      if (authError.code === 'auth/email-already-in-use') {
+        setError('That email is already registered.');
+        return;
+      }
+
+      if (authError.code === 'auth/weak-password') {
+        setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
+        return;
+      }
+      if (authError.code === 'permission-denied') {
+        setError('Selected role is not allowed for self-signup.');
+        return;
+      }
+
+      setError('Unable to create account right now. Please try again.');
     }
-
-    const newUser = {
-      name: form.name.trim(),
-      username,
-      email: form.email.trim(),
-      password: form.password,
-      role: form.role,
-    };
-
-    localStorage.setItem('sv_users', JSON.stringify([...users, newUser]));
-    navigate('/login');
   };
 
   return (
     <div className="auth-container">
       <h2 className="auth-title">Sign Up</h2>
       <form className="auth-form" onSubmit={handleSubmit}>
-        <label className="auth-label" htmlFor="name">Full name</label>
-        <input
-          id="name"
-          className="auth-input"
-          name="name"
-          type="text"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
-
         <label className="auth-label" htmlFor="username">Username</label>
         <input
           id="username"
@@ -92,7 +107,6 @@ function Signup() {
           onChange={handleChange}
           required
         />
-
         <label className="auth-label" htmlFor="role">Role</label>
         <select
           id="role"

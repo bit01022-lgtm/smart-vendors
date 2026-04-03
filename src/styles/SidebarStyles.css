@@ -1,4 +1,4 @@
-/* Sidebar styles for Smart Vendors system */
+/* Sidebar styles for E-Procure Hub */
 .sv-sidebar {
   width: 220px;
   background: #1E3A8A;
@@ -64,4 +64,24 @@
   font-size: 1.2em;
   display: flex;
   align-items: center;
+}
+
+.sv-sidebar-footer {
+  margin-top: auto;
+  padding: 16px 12px 20px;
+}
+
+.sv-sidebar-logout {
+  width: 100%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sv-sidebar-logout:hover {
+  background: rgba(255, 255, 255, 0.24);
 }

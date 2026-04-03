@@ -1,20 +1,18 @@
-// src/utils/activityLogger.js
+import { addActivityLog, getActivityLogs as getActivityLogsFromDb } from '../services/dataService';
 
-// Utility to log procurement activities to localStorage for admin monitoring
-export function logActivity({ type, reference, user, status }) {
-  const logs = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+export async function logActivity({ type, reference, user, status }) {
   const newLog = {
-    id: `ACT-${(logs.length + 1).toString().padStart(3, '0')}`,
+    id: `ACT-${Date.now().toString().slice(-6)}`,
     type,
     reference,
     user,
     date: new Date().toISOString().slice(0, 10),
     status,
   };
-  logs.unshift(newLog); // newest first
-  localStorage.setItem('activityLogs', JSON.stringify(logs));
+
+  await addActivityLog(newLog);
 }
 
-export function getActivityLogs() {
-  return JSON.parse(localStorage.getItem('activityLogs') || '[]');
+export async function getActivityLogs() {
+  return getActivityLogsFromDb([]);
 }
