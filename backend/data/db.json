@@ -224,6 +224,24 @@
       "role": "admin",
       "passwordHash": "$2b$10$0.n8U37rKV9oeqGp5bOzr.iUZiNF0ZFsvZyTjsgighg9P9ZBGPkoa",
       "createdAt": "2026-04-03T22:11:57.295Z"
+    },
+    {
+      "uid": "f259b4e1-a139-4461-8e7f-2c40a13b0556",
+      "name": "debuguser",
+      "username": "debuguser",
+      "email": "debug_user_20260404124348@example.com",
+      "role": "client",
+      "passwordHash": "$2b$10$vOaNccWEFF2MD1PF0nuYJuWybkdJf/mdPmE3MP7dTKTMu.MDkTZhC",
+      "createdAt": "2026-04-04T09:43:48.958Z"
+    },
+    {
+      "uid": "631c7869-e1bf-4f78-8d47-8a505ef2f323",
+      "name": "debuguser_20260404124437",
+      "username": "debuguser_20260404124437",
+      "email": "debug_user_20260404124437@example.com",
+      "role": "client",
+      "passwordHash": "$2b$10$gcqLlH.mc8T2Ga6zq0a58um4Eae1zzXXtfG/5yjNTPkIfZX79XYgq",
+      "createdAt": "2026-04-04T09:44:37.447Z"
     }
   ],
   "appData": {

@@ -3,7 +3,8 @@ import { getAuthToken } from './authService';
 const API_BASE = (() => {
   const configuredBase = import.meta.env.VITE_API_BASE_URL;
   if (configuredBase) {
-    return String(configuredBase).replace(/\/+$/, '');
+    const normalizedBase = String(configuredBase).replace(/\/+$/, '');
+    return normalizedBase.endsWith('/api') ? normalizedBase : `${normalizedBase}/api`;
   }
 
   return '/api';
