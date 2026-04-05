@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import crypto from 'node:crypto';
-import fs from 'node:fs/promises';
+import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import { Pool } from 'pg';
 
 type Role = 'client' | 'procurement' | 'vendor' | 'finance' | 'admin';
 
@@ -45,8 +48,65 @@ type AuthedRequest = Request & {
 
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
-const DB_PATH = path.resolve(process.cwd(), 'backend/data/db.json');
 const ALLOWED_ROLES: Role[] = ['client', 'procurement', 'vendor', 'finance', 'admin'];
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.resolve(__dirname, '../uploads');
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+]);
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const uploadStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (_req, file, cb) => {
+    const safeName = file.originalname
+      .toLowerCase()
+      .replace(/[^a-z0-9.\-_]/g, '-');
+    const ext = path.extname(safeName) || '.bin';
+    cb(null, `${Date.now()}-${crypto.randomUUID()}${ext}`);
+  },
+});
+
+const upload = multer({
+  storage: uploadStorage,
+  limits: { fileSize: MAX_UPLOAD_BYTES, files: 10 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_UPLOAD_MIME_TYPES.has(file.mimetype)) {
+      cb(null, true);
+      return;
+    }
+
+    cb(new Error('UNSUPPORTED_FILE_TYPE'));
+  },
+});
+
+function getDatabaseUrl(): string {
+  const url = String(process.env.DATABASE_URL || '').trim();
+  const env = String(process.env.NODE_ENV || 'development').toLowerCase();
+
+  if (url) {
+    return url;
+  }
+
+  if (env === 'production') {
+    throw new Error('DATABASE_URL is required in production.');
+  }
+
+  console.warn('DATABASE_URL is not set. Using local development fallback database URL.');
+  return 'postgresql://postgres:postgres@localhost:5432/smart_vendors';
+}
+
+const DATABASE_URL = getDatabaseUrl();
+const pool = new Pool({ connectionString: DATABASE_URL });
 
 function getJwtSecret(): string {
   const secret = String(process.env.JWT_SECRET || '').trim();
@@ -68,32 +128,44 @@ const JWT_SECRET = getJwtSecret();
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
+app.use('/uploads', express.static(uploadsDir));
 
 async function ensureDb(): Promise<void> {
-  try {
-    await fs.access(DB_PATH);
-  } catch {
-    const initial: Database = {
-      users: [],
-      appData: {
-        clientRequests: [],
-        procurementTenders: [],
-        procurementBids: [],
-        activityLogs: [],
-        vendorInvoices: {},
-        vendorRegistrations: {},
-      },
-    };
+  const initial: Database = {
+    users: [],
+    appData: {
+      clientRequests: [],
+      procurementTenders: [],
+      procurementBids: [],
+      activityLogs: [],
+      vendorInvoices: {},
+      vendorRegistrations: {},
+    },
+  };
 
-    await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    await fs.writeFile(DB_PATH, JSON.stringify(initial, null, 2), 'utf8');
-  }
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS app_store (
+      id SMALLINT PRIMARY KEY,
+      data JSONB NOT NULL
+    );
+  `);
+
+  await pool.query(
+    `
+      INSERT INTO app_store (id, data)
+      VALUES (1, $1::jsonb)
+      ON CONFLICT (id) DO NOTHING;
+    `,
+    [JSON.stringify(initial)]
+  );
 }
 
 async function readDb(): Promise<Database> {
   await ensureDb();
-  const raw = await fs.readFile(DB_PATH, 'utf8');
-  const parsed = JSON.parse(raw) as Partial<Database>;
+  const result = await pool.query<{ data: Partial<Database> }>(
+    'SELECT data FROM app_store WHERE id = 1 LIMIT 1;'
+  );
+  const parsed = (result.rows[0]?.data || {}) as Partial<Database>;
 
   return {
     users: Array.isArray(parsed.users) ? (parsed.users as UserRecord[]) : [],
@@ -115,7 +187,7 @@ async function readDb(): Promise<Database> {
 }
 
 async function writeDb(data: Database): Promise<void> {
-  await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
+  await pool.query('UPDATE app_store SET data = $1::jsonb WHERE id = 1;', [JSON.stringify(data)]);
 }
 
 function stripPassword(user: UserRecord) {
@@ -291,6 +363,41 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 app.post('/api/auth/logout', (_req, res) => {
   res.json({ success: true });
+});
+
+app.post('/api/uploads', authenticate, (req: AuthedRequest, res) => {
+  upload.array('files', 10)(req, res, (error) => {
+    if (error) {
+      if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+        res.status(400).json({ code: 'FILE_TOO_LARGE', message: 'Each file must be 10MB or smaller.' });
+        return;
+      }
+
+      if (error instanceof Error && error.message === 'UNSUPPORTED_FILE_TYPE') {
+        res.status(400).json({
+          code: 'UNSUPPORTED_FILE_TYPE',
+          message: 'Only PDF, JPG, and PNG files are allowed.',
+        });
+        return;
+      }
+
+      res.status(400).json({ code: 'UPLOAD_FAILED', message: 'File upload failed.' });
+      return;
+    }
+
+    const files = Array.isArray(req.files) ? req.files : [];
+    const baseUrl = `${req.protocol}://${req.get('host') || `localhost:${PORT}`}`;
+    const payload = files.map((file) => ({
+      fileName: file.filename,
+      originalName: file.originalname,
+      fileUrl: `${baseUrl}/uploads/${file.filename}`,
+      contentType: file.mimetype,
+      size: file.size,
+      uploadedAt: new Date().toISOString(),
+    }));
+
+    res.status(201).json({ files: payload });
+  });
 });
 
 app.get('/api/auth/me', authenticate, async (req: AuthedRequest, res) => {
@@ -502,4 +609,14 @@ app.put('/api/app-data/vendorInvoices/all', authenticate, async (req: AuthedRequ
 app.listen(PORT, async () => {
   await ensureDb();
   console.log(`TypeScript API running on http://localhost:${PORT}`);
+});
+
+process.on('SIGINT', async () => {
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await pool.end();
+  process.exit(0);
 });

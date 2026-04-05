@@ -13,10 +13,15 @@ const POLL_INTERVAL_MS = 2500;
 
 async function apiRequest(path, options = {}) {
   const token = getAuthToken();
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const defaultHeaders = {
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...defaultHeaders,
       ...(options.headers || {}),
     },
     ...options,
@@ -30,6 +35,25 @@ async function apiRequest(path, options = {}) {
   }
 
   return payload;
+}
+
+export async function uploadFiles(files = []) {
+  const selected = Array.isArray(files) ? files.filter(Boolean) : [];
+  if (!selected.length) {
+    return [];
+  }
+
+  const formData = new FormData();
+  selected.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  const payload = await apiRequest('/uploads', {
+    method: 'POST',
+    body: formData,
+  });
+
+  return Array.isArray(payload.files) ? payload.files : [];
 }
 
 function subscribePolling(getter, callback, fallbackItems = []) {

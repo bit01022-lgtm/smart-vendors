@@ -9,6 +9,7 @@ import {
   saveProcurementBids,
   subscribeProcurementTenders,
   subscribeProcurementBids,
+  uploadFiles,
 } from '../../services/dataService';
 import { logActivity } from '../../utils/activityLogger';
 
@@ -95,6 +96,17 @@ function ProcurementDashboard() {
       }
       async function handleSubmit(e) {
         e.preventDefault();
+
+        let uploadedAttachments = [];
+        if (form.attachments.length) {
+          try {
+            uploadedAttachments = await uploadFiles(form.attachments);
+          } catch {
+            showNotification('Unable to upload one or more attachments.');
+            return;
+          }
+        }
+
         const nextTenders = [
           ...tenders,
           {
@@ -105,10 +117,13 @@ function ProcurementDashboard() {
             budget: { min: Number(form.budgetMin), max: Number(form.budgetMax) },
             deadline: form.deadline,
             status: "Open",
-            attachments: form.attachments.map((file) => ({
-              name: file.name,
+            attachments: uploadedAttachments.map((file) => ({
+              name: file.originalName,
+              fileName: file.fileName,
+              fileUrl: file.fileUrl,
               size: file.size,
-              type: file.type,
+              type: file.contentType,
+              uploadedAt: file.uploadedAt,
             })),
           },
         ];

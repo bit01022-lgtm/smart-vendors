@@ -4,8 +4,10 @@ import MainLayout from '../../components/layout/MainLayout';
 import {
   saveClientRequests,
   subscribeClientRequests,
+  uploadFiles,
 } from '../../services/dataService';
 import { logActivity } from '../../utils/activityLogger';
+import { useAuth } from '../../context/useAuth';
 
 import '../../styles/DashboardStyles.css';
 
@@ -21,11 +23,12 @@ const priorityOptions = ["Low", "Medium", "High"];
 const preloadedRequests = [];
 
 function ClientDashboard() {
-  // ...existing code...
+  const { currentUser, profile } = useAuth();
+  const clientDisplayName = profile?.name || currentUser?.name || currentUser?.email || 'Demo Client';
+
   const [activeTab, setActiveTab] = useState("submit");
   const [requests, setRequests] = useState(preloadedRequests);
   const [form, setForm] = useState({
-    clientName: "Demo Client",
     title: "",
     description: "",
     category: "",
@@ -75,18 +78,29 @@ function ClientDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const attachmentMeta = form.attachment
-      ? {
-        name: form.attachment.name,
-        size: form.attachment.size,
-        type: form.attachment.type,
-        lastModified: form.attachment.lastModified,
+    let attachmentMeta = null;
+    if (form.attachment) {
+      try {
+        const [uploaded] = await uploadFiles([form.attachment]);
+        attachmentMeta = uploaded
+          ? {
+            name: uploaded.originalName,
+            fileName: uploaded.fileName,
+            fileUrl: uploaded.fileUrl,
+            size: uploaded.size,
+            type: uploaded.contentType,
+            uploadedAt: uploaded.uploadedAt,
+          }
+          : null;
+      } catch {
+        showNotification('Unable to upload attachment. Please try again.');
+        return;
       }
-      : null;
+    }
 
     const newRequest = {
       id: getNextRequestId(),
-      clientName: form.clientName || "Demo Client",
+      clientName: clientDisplayName,
       title: form.title,
       description: form.description,
       category: form.category,
@@ -112,7 +126,6 @@ function ClientDashboard() {
     }
 
     setForm({
-      clientName: "Demo Client",
       title: "",
       description: "",
       category: "",
@@ -126,7 +139,7 @@ function ClientDashboard() {
     logActivity({
       type: 'Client Request Submitted',
       reference: newRequest.id,
-      user: newRequest.clientName || 'Client User',
+      user: clientDisplayName,
       status: newRequest.status,
     }).catch(() => {});
     showNotification("Request submitted.");
@@ -175,7 +188,14 @@ function ClientDashboard() {
                   <h3 className="sv-section-title">Request Details</h3>
                   <div className="sv-form-group">
                     <label htmlFor="clientName">Client Name</label>
-                    <input name="clientName" id="clientName" type="text" value={form.clientName} onChange={handleInputChange} required />
+                    <input
+                      name="clientName"
+                      id="clientName"
+                      type="text"
+                      value={clientDisplayName}
+                      disabled
+                      readOnly
+                    />
                   </div>
                   <div className="sv-form-group">
                     <label htmlFor="title">Title</label>

@@ -11,13 +11,13 @@ import {
   subscribeProcurementTenders,
   subscribeVendorRegistration,
   subscribeVendorInvoices,
+  uploadFiles,
 } from '../../services/dataService';
 import { logActivity } from '../../utils/activityLogger';
 import {
   formatFileSize,
   isAllowedFileType,
   MAX_FILE_SIZE_BYTES,
-  persistFile,
 } from '../../services/filePersistenceService';
 
 import '../../styles/DashboardStyles.css';
@@ -176,29 +176,25 @@ function VendorDashboard() {
 
     let uploadedDocs;
     try {
-      uploadedDocs = await Promise.all(
-        docFiles.map(async (file, index) => {
-          const persisted = await persistFile(file);
-          return {
-            id: `DOC-${Date.now()}-${index + 1}`,
-            name: docTypeName || file.name,
-            notes: docNotes,
-            fileName: persisted.fileName,
-            fileUrl: persisted.fileUrl,
-            contentType: persisted.contentType,
-            size: persisted.size,
-            uploadedAt: new Date().toISOString(),
-          };
-        })
-      );
+      const uploadedFiles = await uploadFiles(docFiles);
+      uploadedDocs = uploadedFiles.map((file, index) => ({
+        id: `DOC-${Date.now()}-${index + 1}`,
+        name: docTypeName || file.originalName,
+        notes: docNotes,
+        fileName: file.fileName,
+        fileUrl: file.fileUrl,
+        contentType: file.contentType,
+        size: file.size,
+        uploadedAt: file.uploadedAt,
+      }));
     } catch (error) {
-      if (error.message === 'FILE_TYPE_NOT_ALLOWED') {
+      if (error.code === 'UNSUPPORTED_FILE_TYPE') {
         showNotification('Only PDF, JPG, and PNG files are allowed.');
         return;
       }
 
-      if (error.message === 'FILE_TOO_LARGE') {
-        showNotification(`Each document must be <= ${MAX_FILE_SIZE_LABEL} (images are auto-compressed).`);
+      if (error.code === 'FILE_TOO_LARGE') {
+        showNotification('Each document must be <= 10MB.');
         return;
       }
 

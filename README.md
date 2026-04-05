@@ -19,6 +19,18 @@ Role-based procurement platform built with React + Vite + a TypeScript API backe
 Create a `.env` file using `.env.example`:
 
 - `VITE_API_BASE_URL` (optional, defaults to `http://localhost:4000`)
+- `JWT_SECRET` (required in production)
+- `DATABASE_URL` (PostgreSQL connection string)
+
+## PostgreSQL Setup
+
+Create the local database (example):
+
+```bash
+createdb smart_vendors
+```
+
+The backend auto-creates its `app_store` table on startup.
 
 ## Run Locally
 
