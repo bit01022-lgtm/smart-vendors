@@ -102,7 +102,7 @@ function Signup() {
           id="password"
           className="auth-input"
           name="password"
-          type="password"
+          type="text"
           value={form.password}
           onChange={handleChange}
           required

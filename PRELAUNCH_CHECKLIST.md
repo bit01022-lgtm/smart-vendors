@@ -7,6 +7,9 @@ Use this checklist right before going live.
 - [ ] Confirm production `.env` values are set in hosting platform settings.
 - [ ] Confirm all required keys exist:
   - [ ] `VITE_API_BASE_URL` (if backend is not on the same host)
+  - [ ] `DATABASE_URL` (Neon connection string on Render)
+  - [ ] `JWT_SECRET` (backend secret on Render)
+  - [ ] `NODE_ENV=production` (Render backend)
 - [ ] Verify no secret values are committed to git.
 
 ## 2) Backend Configuration
@@ -30,7 +33,8 @@ curl http://localhost:4000/api/health
 
 - [ ] Clean install dependencies: `npm ci`
 - [ ] Build project locally: `npm run build`
-- [ ] Deploy frontend to hosting (Vercel or your platform).
+- [ ] Deploy frontend to Vercel.
+- [ ] Deploy backend to Render.
 - [ ] Open production URL and verify app loads.
 
 ## 5) Role-Based Smoke Test (Production)

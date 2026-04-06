@@ -102,7 +102,7 @@ function VendorDashboard() {
 
     if (invalidTypeCount || oversizedNonImageCount) {
       showNotification(
-        `Some files were skipped (type/size). Allowed: PDF, JPG, PNG. Max: ${MAX_FILE_SIZE_LABEL}.`
+        `Some files were skipped due to size. Max: ${MAX_FILE_SIZE_LABEL} per file.`
       );
     }
   };
@@ -188,13 +188,8 @@ function VendorDashboard() {
         uploadedAt: file.uploadedAt,
       }));
     } catch (error) {
-      if (error.code === 'UNSUPPORTED_FILE_TYPE') {
-        showNotification('Only PDF, JPG, and PNG files are allowed.');
-        return;
-      }
-
       if (error.code === 'FILE_TOO_LARGE') {
-        showNotification('Each document must be <= 10MB.');
+        showNotification('Each document must be <= 100MB.');
         return;
       }
 
@@ -473,20 +468,10 @@ function VendorDashboard() {
 
     let uploadedInvoice;
     try {
-      if (!isAllowedFileType(invoiceFile)) {
-        showNotification('Only PDF, JPG, and PNG invoice files are allowed.');
-        return;
-      }
-
       uploadedInvoice = await persistFile(invoiceFile);
     } catch (error) {
-      if (error.message === 'FILE_TYPE_NOT_ALLOWED') {
-        showNotification('Only PDF, JPG, and PNG invoice files are allowed.');
-        return;
-      }
-
       if (error.message === 'FILE_TOO_LARGE') {
-        showNotification(`Invoice file must be <= ${MAX_FILE_SIZE_LABEL} (images are auto-compressed).`);
+        showNotification(`Invoice file must be <= ${MAX_FILE_SIZE_LABEL}.`);
         return;
       }
 
@@ -591,7 +576,7 @@ function VendorDashboard() {
                 <label>Upload Files: </label>
                 <input type="file" multiple onChange={handleDocFileChange} />
                 <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  Allowed: PDF, JPG, PNG. Max: {MAX_FILE_SIZE_LABEL} per file.
+                  All file types accepted. Max: {MAX_FILE_SIZE_LABEL} per file.
                 </div>
               </div>
               <div>
@@ -802,7 +787,7 @@ function VendorDashboard() {
                 <label>Invoice File: </label>
                 <input type="file" onChange={handleInvoiceFileChange} required />
                 <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  Allowed: PDF, JPG, PNG. Max: {MAX_FILE_SIZE_LABEL} per file.
+                  All file types accepted. Max: {MAX_FILE_SIZE_LABEL} per file.
                 </div>
               </div>
               <div className="sv-form-group">

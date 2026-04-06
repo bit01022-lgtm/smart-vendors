@@ -100,60 +100,6 @@
       "createdAt": "2026-04-03T20:29:14.957Z"
     },
     {
-      "uid": "3f61a25b-729c-45df-8698-7baf3fd3269b",
-      "name": "admin_smoke_20260403235702",
-      "username": "admin_smoke_20260403235702",
-      "email": "admin_smoke_20260403235702@example.com",
-      "role": "admin",
-      "passwordHash": "$2b$10$pIO7lw1DF0XyonmqqM44gemvWJHHMy5WTYb6xq9Ph0R.xOlTlwSAy",
-      "createdAt": "2026-04-03T20:57:02.757Z"
-    },
-    {
-      "uid": "e616e669-dc1c-486d-8a08-5752cdfcf05f",
-      "name": "proc_smoke_20260403235702",
-      "username": "proc_smoke_20260403235702",
-      "email": "proc_smoke_20260403235702@example.com",
-      "role": "procurement",
-      "passwordHash": "$2b$10$JvqTRH.vqn6ypaBsd68.feLrqawqa9Q81ttZWR8NDgRvTAORESNAW",
-      "createdAt": "2026-04-03T20:57:02.870Z"
-    },
-    {
-      "uid": "33b693d7-9df5-4227-99e8-6c4bb22b6581",
-      "name": "vendor_smoke_20260403235702",
-      "username": "vendor_smoke_20260403235702",
-      "email": "vendor_smoke_20260403235702@example.com",
-      "role": "vendor",
-      "passwordHash": "$2b$10$VMkUVslDrkDrtob2S9pz3eGsWbmCBCkCWXNQVenrYp3qLWyTy.3gy",
-      "createdAt": "2026-04-03T20:57:02.983Z"
-    },
-    {
-      "uid": "850cd200-404b-400b-bdcb-851cbc2143a1",
-      "name": "admin_smoke_20260403235758",
-      "username": "admin_smoke_20260403235758",
-      "email": "admin_smoke_20260403235758@example.com",
-      "role": "admin",
-      "passwordHash": "$2b$10$lRjWOKEBI7kpgdI6d6hAde3cqFHG8OREjYbMFjaLk4z7X/e7JwZpa",
-      "createdAt": "2026-04-03T20:57:59.080Z"
-    },
-    {
-      "uid": "c38db4c5-cabc-4cd6-a91e-1d1bc0c902cf",
-      "name": "proc_smoke_20260403235758",
-      "username": "proc_smoke_20260403235758",
-      "email": "proc_smoke_20260403235758@example.com",
-      "role": "procurement",
-      "passwordHash": "$2b$10$i6JWfEX5JRdqzyK9OHQD1.3Grkiva446qcxYvFD8KZkoQOAXRgMZS",
-      "createdAt": "2026-04-03T20:57:59.200Z"
-    },
-    {
-      "uid": "90add36d-e5db-44a4-9398-4b7472007f8f",
-      "name": "vendor_smoke_20260403235758",
-      "username": "vendor_smoke_20260403235758",
-      "email": "vendor_smoke_20260403235758@example.com",
-      "role": "vendor",
-      "passwordHash": "$2b$10$MrVGAIr7q3mNbTARY6EkseDK5H9RGBK58XHpy1fL4qbfTMqTTb2rC",
-      "createdAt": "2026-04-03T20:57:59.377Z"
-    },
-    {
       "uid": "0e16fb6f-6567-4e98-83ac-fe64ee4edee7",
       "name": "admin_multi_20260404002016",
       "username": "admin_multi_20260404002016",
@@ -270,32 +216,6 @@
             "type": "image/jpeg"
           }
         ]
-      },
-      {
-        "budget": {
-          "min": 100,
-          "max": 200
-        },
-        "subcategory": "API",
-        "attachments": [],
-        "title": "Smoke Tender",
-        "category": "Testing",
-        "status": "Open",
-        "id": "TND-SMOKE-20260403235702",
-        "deadline": "2026-04-06"
-      },
-      {
-        "id": "TND-SMOKE-20260403235758",
-        "title": "Smoke Tender",
-        "category": "Testing",
-        "subcategory": "API",
-        "budget": {
-          "min": 100,
-          "max": 200
-        },
-        "deadline": "2026-04-06",
-        "status": "Open",
-        "attachments": []
       },
       {
         "id": "TND-005",

@@ -114,6 +114,7 @@ function Login() {
           className="auth-input"
           name="identifier"
           type="text"
+          autoComplete="username"
           value={form.identifier}
           onChange={handleChange}
           required
@@ -125,6 +126,7 @@ function Login() {
           className="auth-input"
           name="password"
           type="password"
+          autoComplete="current-password"
           value={form.password}
           onChange={handleChange}
           required

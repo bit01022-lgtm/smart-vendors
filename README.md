@@ -18,9 +18,26 @@ Role-based procurement platform built with React + Vite + a TypeScript API backe
 
 Create a `.env` file using `.env.example`:
 
-- `VITE_API_BASE_URL` (optional, defaults to `http://localhost:4000`)
-- `JWT_SECRET` (required in production)
-- `DATABASE_URL` (PostgreSQL connection string)
+- `VITE_API_BASE_URL` - backend URL for the frontend to call. Leave empty for same-host local development; set it to your Render backend URL in production.
+- `JWT_SECRET` - required in production.
+- `DATABASE_URL` - Neon PostgreSQL connection string used by Render.
+
+## Deployment Layout
+
+Use the services together like this:
+
+- Neon: stores the PostgreSQL database and provides `DATABASE_URL`.
+- Render: hosts the TypeScript API backend.
+- Vercel: hosts the Vite frontend.
+
+Production environment values:
+
+- Render backend:
+  - `DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=verify-full&channel_binding=require`
+  - `JWT_SECRET=your-long-random-secret`
+  - `NODE_ENV=production`
+- Vercel frontend:
+  - `VITE_API_BASE_URL=https://your-render-service.onrender.com`
 
 ## PostgreSQL Setup
 
@@ -31,6 +48,8 @@ createdb smart_vendors
 ```
 
 The backend auto-creates its `app_store` table on startup.
+
+If you are deploying to Render and Neon, do not use `localhost` in production. The frontend should point to the Render URL, and the backend should point to Neon through `DATABASE_URL`.
 
 ## Run Locally
 

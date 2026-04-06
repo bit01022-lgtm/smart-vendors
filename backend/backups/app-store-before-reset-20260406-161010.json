@@ -1,0 +1,61 @@
+{
+  "users": [
+    {
+      "uid": "8984e4f6-1fac-4aa2-a19a-e546fd30b745",
+      "name": "creda",
+      "role": "admin",
+      "email": "musyokafaith41@gmail.com",
+      "username": "creda",
+      "createdAt": "2026-04-06T11:03:21.612Z",
+      "passwordHash": "$2b$10$.dANfkYiK1YL2liaaroPT.0FEpfDxeD2GrULCCVh/J.yuacSrCNl6"
+    },
+    {
+      "uid": "3ab14139-6b76-4978-9723-d05b5044a012",
+      "name": "faith",
+      "role": "client",
+      "email": "musyokafaith311@gmail.com",
+      "username": "faith",
+      "createdAt": "2026-04-06T11:05:19.106Z",
+      "passwordHash": "$2b$10$Eco6l3Jo3Ib5YYm/PfeZieeZ.VC9ULkkzLcGRZ3gDgvrzLT9Ht9te"
+    },
+    {
+      "uid": "5eb3495e-303e-4d4c-9b65-ccb6ca7ad43a",
+      "name": "juliet",
+      "role": "finance",
+      "email": "bit01022@uoeld.ac.ke",
+      "username": "juliet",
+      "createdAt": "2026-04-06T12:04:16.049Z",
+      "passwordHash": "$2b$10$pUTd9uEMWWVpZv3TYo4ZQuvhf2Ol.FC6AvAcSal9y3S3XyQvEhwsG"
+    },
+    {
+      "uid": "a809e21b-467c-4304-b230-4029164699f5",
+      "name": "musyoka",
+      "role": "procurement",
+      "email": "crda624@gmail.com",
+      "username": "musyoka",
+      "createdAt": "2026-04-06T12:37:31.539Z",
+      "passwordHash": "$2b$10$Z5.dZdC5g69Jzm13qr1vo.ASoqV1eo4zVQ.VrZP7Oykpgyl0pyXbi"
+    },
+    {
+      "uid": "36e17bed-4e2f-47de-8b14-c9a6f76d161c",
+      "name": "vendor",
+      "role": "vendor",
+      "email": "musyokafaith03@gmail.com",
+      "username": "vendor",
+      "createdAt": "2026-04-06T12:52:46.420Z",
+      "passwordHash": "$2b$10$Y0AuTo70lpvpgaoy2mZRzOigBigULd9fW5kBA/5LK43cENYRdtz82"
+    }
+  ],
+  "appData": {
+    "activityLogs": [],
+    "clientRequests": [],
+    "vendorInvoices": {
+      "316e3419-04c7-4a23-920e-f520409107d0": [],
+      "4f9cb997-9fe2-4cf4-a136-7b5611052645": [],
+      "5ebade48-0d11-4931-9783-3f432fa28543": []
+    },
+    "procurementBids": [],
+    "procurementTenders": [],
+    "vendorRegistrations": {}
+  }
+}

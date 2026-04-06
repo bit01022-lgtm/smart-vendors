@@ -1,19 +1,9 @@
-const MAX_FILE_SIZE_BYTES = 300 * 1024; // 300KB safe limit for persisted payloads
-const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
-const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png'];
-
-function hasAllowedExtension(fileName = '') {
-  const normalized = fileName.toLowerCase();
-  return ALLOWED_EXTENSIONS.some((ext) => normalized.endsWith(ext));
-}
+// No file type restrictions - accept all file types
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB - matches backend limit
 
 export function isAllowedFileType(file) {
-  if (ALLOWED_FILE_TYPES.includes(file.type)) {
-    return true;
-  }
-
-  // Some browsers may provide an empty mime type for local files.
-  return hasAllowedExtension(file.name);
+  // Accept all file types
+  return true;
 }
 
 export function formatFileSize(bytes = 0) {
@@ -116,20 +106,12 @@ export function validatePersistedFileSize(file) {
 }
 
 export async function normalizeFileForPersistence(file) {
-  if (!isAllowedFileType(file)) {
-    throw new Error('FILE_TYPE_NOT_ALLOWED');
-  }
-
+  // Accept all file types without validation
   if (file.size <= MAX_FILE_SIZE_BYTES) {
     return file;
   }
 
-  if (file.type.startsWith('image/')) {
-    const compressed = await compressImageToMaxSize(file, MAX_FILE_SIZE_BYTES);
-    validatePersistedFileSize(compressed);
-    return compressed;
-  }
-
+  // File exceeds 100MB limit
   throw new Error('FILE_TOO_LARGE');
 }
 
@@ -146,4 +128,4 @@ export async function persistFile(file) {
   };
 }
 
-export { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_BYTES };
+export { MAX_FILE_SIZE_BYTES };

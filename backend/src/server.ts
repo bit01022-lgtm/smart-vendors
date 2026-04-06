@@ -52,12 +52,8 @@ const ALLOWED_ROLES: Role[] = ['client', 'procurement', 'vendor', 'finance', 'ad
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.resolve(__dirname, '../uploads');
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
-const ALLOWED_UPLOAD_MIME_TYPES = new Set([
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-]);
+const MAX_UPLOAD_BYTES = 100 * 1024 * 1024; // 100MB - supports large invoice files
+// No file type restrictions - accept any file type for invoices
 
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -79,14 +75,7 @@ const uploadStorage = multer.diskStorage({
 const upload = multer({
   storage: uploadStorage,
   limits: { fileSize: MAX_UPLOAD_BYTES, files: 10 },
-  fileFilter: (_req, file, cb) => {
-    if (ALLOWED_UPLOAD_MIME_TYPES.has(file.mimetype)) {
-      cb(null, true);
-      return;
-    }
-
-    cb(new Error('UNSUPPORTED_FILE_TYPE'));
-  },
+  // No file type restrictions - accept all file types
 });
 
 function getDatabaseUrl(): string {
@@ -369,15 +358,7 @@ app.post('/api/uploads', authenticate, (req: AuthedRequest, res) => {
   upload.array('files', 10)(req, res, (error) => {
     if (error) {
       if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
-        res.status(400).json({ code: 'FILE_TOO_LARGE', message: 'Each file must be 10MB or smaller.' });
-        return;
-      }
-
-      if (error instanceof Error && error.message === 'UNSUPPORTED_FILE_TYPE') {
-        res.status(400).json({
-          code: 'UNSUPPORTED_FILE_TYPE',
-          message: 'Only PDF, JPG, and PNG files are allowed.',
-        });
+        res.status(400).json({ code: 'FILE_TOO_LARGE', message: 'Each file must be 100MB or smaller.' });
         return;
       }
 

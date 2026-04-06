@@ -100,60 +100,6 @@
       "createdAt": "2026-04-03T20:29:14.957Z"
     },
     {
-      "uid": "3f61a25b-729c-45df-8698-7baf3fd3269b",
-      "name": "admin_smoke_20260403235702",
-      "username": "admin_smoke_20260403235702",
-      "email": "admin_smoke_20260403235702@example.com",
-      "role": "admin",
-      "passwordHash": "$2b$10$pIO7lw1DF0XyonmqqM44gemvWJHHMy5WTYb6xq9Ph0R.xOlTlwSAy",
-      "createdAt": "2026-04-03T20:57:02.757Z"
-    },
-    {
-      "uid": "e616e669-dc1c-486d-8a08-5752cdfcf05f",
-      "name": "proc_smoke_20260403235702",
-      "username": "proc_smoke_20260403235702",
-      "email": "proc_smoke_20260403235702@example.com",
-      "role": "procurement",
-      "passwordHash": "$2b$10$JvqTRH.vqn6ypaBsd68.feLrqawqa9Q81ttZWR8NDgRvTAORESNAW",
-      "createdAt": "2026-04-03T20:57:02.870Z"
-    },
-    {
-      "uid": "33b693d7-9df5-4227-99e8-6c4bb22b6581",
-      "name": "vendor_smoke_20260403235702",
-      "username": "vendor_smoke_20260403235702",
-      "email": "vendor_smoke_20260403235702@example.com",
-      "role": "vendor",
-      "passwordHash": "$2b$10$VMkUVslDrkDrtob2S9pz3eGsWbmCBCkCWXNQVenrYp3qLWyTy.3gy",
-      "createdAt": "2026-04-03T20:57:02.983Z"
-    },
-    {
-      "uid": "850cd200-404b-400b-bdcb-851cbc2143a1",
-      "name": "admin_smoke_20260403235758",
-      "username": "admin_smoke_20260403235758",
-      "email": "admin_smoke_20260403235758@example.com",
-      "role": "admin",
-      "passwordHash": "$2b$10$lRjWOKEBI7kpgdI6d6hAde3cqFHG8OREjYbMFjaLk4z7X/e7JwZpa",
-      "createdAt": "2026-04-03T20:57:59.080Z"
-    },
-    {
-      "uid": "c38db4c5-cabc-4cd6-a91e-1d1bc0c902cf",
-      "name": "proc_smoke_20260403235758",
-      "username": "proc_smoke_20260403235758",
-      "email": "proc_smoke_20260403235758@example.com",
-      "role": "procurement",
-      "passwordHash": "$2b$10$i6JWfEX5JRdqzyK9OHQD1.3Grkiva446qcxYvFD8KZkoQOAXRgMZS",
-      "createdAt": "2026-04-03T20:57:59.200Z"
-    },
-    {
-      "uid": "90add36d-e5db-44a4-9398-4b7472007f8f",
-      "name": "vendor_smoke_20260403235758",
-      "username": "vendor_smoke_20260403235758",
-      "email": "vendor_smoke_20260403235758@example.com",
-      "role": "vendor",
-      "passwordHash": "$2b$10$MrVGAIr7q3mNbTARY6EkseDK5H9RGBK58XHpy1fL4qbfTMqTTb2rC",
-      "createdAt": "2026-04-03T20:57:59.377Z"
-    },
-    {
       "uid": "0e16fb6f-6567-4e98-83ac-fe64ee4edee7",
       "name": "admin_multi_20260404002016",
       "username": "admin_multi_20260404002016",
@@ -179,51 +125,6 @@
       "role": "vendor",
       "passwordHash": "$2b$10$jB5gW4ccrK3WTAm1JHUXqOJQRnBY8m0QIJCcTIyyVj.g5UFM5SrjG",
       "createdAt": "2026-04-03T21:20:17.474Z"
-    },
-    {
-      "uid": "a53d70f6-6aa1-411e-b2cf-d103c6074ec7",
-      "name": "client_smoke_client_20260404011155",
-      "username": "client_smoke_client_20260404011155",
-      "email": "client_smoke_client_20260404011155@example.com",
-      "role": "client",
-      "passwordHash": "$2b$10$hknj4EsWwEp74PfYKyNXuuJo1Z1W9fYWmlUztNF7h1E2KKJ8T6JNG",
-      "createdAt": "2026-04-03T22:11:55.768Z"
-    },
-    {
-      "uid": "264587e6-95ed-445f-8186-32cfee5aa439",
-      "name": "procurement_smoke_proc_20260404011155",
-      "username": "procurement_smoke_proc_20260404011155",
-      "email": "procurement_smoke_proc_20260404011155@example.com",
-      "role": "procurement",
-      "passwordHash": "$2b$10$286bBd70AkDCD.sN6WBnWedtX8Do1CFexw0yRqIQwsFikUlIMeXfS",
-      "createdAt": "2026-04-03T22:11:56.161Z"
-    },
-    {
-      "uid": "5bd65c3d-3c11-4373-812e-a03a9dae6ee2",
-      "name": "vendor_smoke_vendor_20260404011155",
-      "username": "vendor_smoke_vendor_20260404011155",
-      "email": "vendor_smoke_vendor_20260404011155@example.com",
-      "role": "vendor",
-      "passwordHash": "$2b$10$UvpPG14pIBYxHoRAh9m3rutYP1wgCY1xxSQQJFvbI9w9C6puK/iuC",
-      "createdAt": "2026-04-03T22:11:56.547Z"
-    },
-    {
-      "uid": "27254e0a-58a4-4657-8662-5a6c4dc83cb6",
-      "name": "finance_smoke_fin_20260404011155",
-      "username": "finance_smoke_fin_20260404011155",
-      "email": "finance_smoke_fin_20260404011155@example.com",
-      "role": "finance",
-      "passwordHash": "$2b$10$q.IcPkVegTqD/XHfBnr/bObfpUwB6aG1hb2GjnTQg/2ROw10Xz.Fe",
-      "createdAt": "2026-04-03T22:11:56.927Z"
-    },
-    {
-      "uid": "da0894b4-5dc7-4050-9490-f5af3c6f0209",
-      "name": "admin_smoke_admin_20260404011155",
-      "username": "admin_smoke_admin_20260404011155",
-      "email": "admin_smoke_admin_20260404011155@example.com",
-      "role": "admin",
-      "passwordHash": "$2b$10$0.n8U37rKV9oeqGp5bOzr.iUZiNF0ZFsvZyTjsgighg9P9ZBGPkoa",
-      "createdAt": "2026-04-03T22:11:57.295Z"
     },
     {
       "uid": "f259b4e1-a139-4461-8e7f-2c40a13b0556",
@@ -299,21 +200,6 @@
         "status": "Approved",
         "source": "v2",
         "createdAt": "2026-04-03T21:31:25.268Z"
-      },
-      {
-        "id": "REQ-SMOKE-20260404011155",
-        "clientName": "Smoke Client",
-        "title": "Smoke Request",
-        "description": "Smoke test request",
-        "category": "Computing Hardware",
-        "subcategory": "Laptops",
-        "priority": "High",
-        "budgetMin": 1000,
-        "budgetMax": 2000,
-        "dateRequired": "2026-04-10",
-        "status": "Pending",
-        "source": "smoke",
-        "createdAt": "2026-04-03T22:11:57.505Z"
       }
     ],
     "procurementTenders": [
@@ -348,32 +234,6 @@
             "type": "image/jpeg"
           }
         ]
-      },
-      {
-        "budget": {
-          "min": 100,
-          "max": 200
-        },
-        "subcategory": "API",
-        "attachments": [],
-        "title": "Smoke Tender",
-        "category": "Testing",
-        "status": "Open",
-        "id": "TND-SMOKE-20260403235702",
-        "deadline": "2026-04-06"
-      },
-      {
-        "id": "TND-SMOKE-20260403235758",
-        "title": "Smoke Tender",
-        "category": "Testing",
-        "subcategory": "API",
-        "budget": {
-          "min": 100,
-          "max": 200
-        },
-        "deadline": "2026-04-06",
-        "status": "Open",
-        "attachments": []
       },
       {
         "id": "TND-005",
@@ -412,19 +272,6 @@
             "type": "image/jpeg"
           }
         ]
-      },
-      {
-        "id": "TND-SMOKE-20260404011155",
-        "title": "Smoke Tender",
-        "category": "Computing Hardware",
-        "subcategory": "Laptops",
-        "budget": {
-          "min": 1100,
-          "max": 1900
-        },
-        "deadline": "2026-04-13",
-        "status": "Open",
-        "attachments": []
       }
     ],
     "procurementBids": [
@@ -475,27 +322,9 @@
         ],
         "date": "2026-04-03",
         "status": "Rejected"
-      },
-      {
-        "id": "BID-SMOKE-20260404011155",
-        "tenderId": "TND-SMOKE-20260404011155",
-        "vendor": "vendor_smoke_vendor_20260404011155@example.com",
-        "amount": 1500,
-        "notes": "Smoke bid",
-        "files": [],
-        "date": "2026-04-03",
-        "status": "Submitted"
       }
     ],
     "activityLogs": [
-      {
-        "id": "ACT-SMOKE-20260404011155",
-        "type": "Smoke Event",
-        "reference": "TND-SMOKE-20260404011155",
-        "user": "Smoke Runner",
-        "date": "2026-04-03",
-        "status": "OK"
-      },
       {
         "id": "ACT-033664",
         "type": "Winning Vendor Selected",
@@ -705,18 +534,7 @@
           "paymentStatus": "Paid"
         }
       ],
-      "5bd65c3d-3c11-4373-812e-a03a9dae6ee2": [
-        {
-          "id": "INV-SMOKE-20260404011155",
-          "ownerUid": "5bd65c3d-3c11-4373-812e-a03a9dae6ee2",
-          "vendorName": "vendor_smoke_vendor_20260404011155@example.com",
-          "po": "PO-SMOKE-20260404011155",
-          "name": "Smoke Invoice",
-          "amount": 1500,
-          "submissionDate": "2026-04-03",
-          "status": "Submitted"
-        }
-      ]
+      "5bd65c3d-3c11-4373-812e-a03a9dae6ee2": []
     },
     "vendorRegistrations": {
       "7d298be2-26b3-4ca6-ad99-3300ac12a8b0": [

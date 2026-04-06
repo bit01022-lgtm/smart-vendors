@@ -4,34 +4,34 @@ import MainLayout from '../../components/layout/MainLayout';
 import {
   saveVendorRegistration,
   subscribeActivityLogs,
+  subscribeAllVendorInvoices,
   subscribeAllVendorRegistrations,
+  subscribeProcurementTenders,
 } from '../../services/dataService';
 import { logActivity } from '../../utils/activityLogger';
 import '../../styles/DashboardStyles.css';
 
-
-const initialVendors = [
-  { id: "VND-001", name: "Vendor A", email: "vendorA@example.com", status: "Pending" },
-  { id: "VND-002", name: "Vendor B", email: "vendorB@example.com", status: "Pending" },
-  { id: "VND-003", name: "Vendor C", email: "vendorC@example.com", status: "Approved" },
-];
-
-
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("approveVendors");
-  const [vendors, setVendors] = useState(initialVendors);
+  const [vendors, setVendors] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
+  const [tenders, setTenders] = useState([]);
+  const [allInvoices, setAllInvoices] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [updatingVendorId, setUpdatingVendorId] = useState(null);
 
   // Poll persisted activity logs to keep admin monitoring updated.
   useEffect(() => {
     const unsubscribeVendors = subscribeAllVendorRegistrations((items) => {
-      setVendors(items.length ? items : initialVendors);
+      setVendors(items);
     });
+    const unsubscribeTenders = subscribeProcurementTenders(setTenders, []);
+    const unsubscribeInvoices = subscribeAllVendorInvoices(setAllInvoices);
     const unsubscribe = subscribeActivityLogs(setActivityLogs, []);
     return () => {
       unsubscribeVendors();
+      unsubscribeTenders();
+      unsubscribeInvoices();
       unsubscribe();
     };
   }, []);
@@ -98,10 +98,9 @@ function AdminDashboard() {
     }
   };
 
-  // Dummy stats for reports
-  const totalUsers = 12;
-  const totalTenders = 8;
-  const totalPayments = 5;
+  const totalUsers = vendors.length;
+  const totalTenders = tenders.length;
+  const totalPayments = allInvoices.filter((invoice) => invoice.paymentStatus === 'Paid').length;
 
   return (
     <MainLayout title="Admin">
