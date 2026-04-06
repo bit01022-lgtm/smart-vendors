@@ -16,7 +16,6 @@ import {
 import { logActivity } from '../../utils/activityLogger';
 import {
   formatFileSize,
-  isAllowedFileType,
   MAX_FILE_SIZE_BYTES,
 } from '../../services/filePersistenceService';
 
@@ -81,17 +80,12 @@ function VendorDashboard() {
   const handleDocFileChange = (e) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     const accepted = [];
-    let invalidTypeCount = 0;
-    let oversizedNonImageCount = 0;
+    let oversizedCount = 0;
 
     files.forEach((file) => {
-      if (!isAllowedFileType(file)) {
-        invalidTypeCount += 1;
-        return;
-      }
-
-      if (!file.type.startsWith('image/') && file.size > MAX_FILE_SIZE_BYTES) {
-        oversizedNonImageCount += 1;
+      // Only check file size, accept all file types
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        oversizedCount += 1;
         return;
       }
 
@@ -100,7 +94,7 @@ function VendorDashboard() {
 
     setDocFiles(accepted);
 
-    if (invalidTypeCount || oversizedNonImageCount) {
+    if (oversizedCount) {
       showNotification(
         `Some files were skipped due to size. Max: ${MAX_FILE_SIZE_LABEL} per file.`
       );
@@ -468,14 +462,20 @@ function VendorDashboard() {
 
     let uploadedInvoice;
     try {
-      uploadedInvoice = await persistFile(invoiceFile);
+      // Upload via backend API for proper handling of all file types and sizes
+      const uploadedFiles = await uploadFiles([invoiceFile]);
+      if (!uploadedFiles || uploadedFiles.length === 0) {
+        showNotification('Failed to upload invoice file.');
+        return;
+      }
+      uploadedInvoice = uploadedFiles[0];
     } catch (error) {
-      if (error.message === 'FILE_TOO_LARGE') {
+      if (error.code === 'FILE_TOO_LARGE') {
         showNotification(`Invoice file must be <= ${MAX_FILE_SIZE_LABEL}.`);
         return;
       }
 
-      showNotification('Unable to process invoice file.');
+      showNotification('Unable to upload invoice file. Please try again.');
       return;
     }
 
