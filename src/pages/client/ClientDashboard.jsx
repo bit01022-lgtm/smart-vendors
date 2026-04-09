@@ -9,7 +9,7 @@ import {
 import { logActivity } from '../../utils/activityLogger';
 import { useAuth } from '../../context/useAuth';
 
-import '../../styles/DashboardStyles.css';
+ 
 
 const categoryOptions = {
   "Computing Hardware": ["Laptops", "Desktops", "Servers"],
@@ -150,6 +150,28 @@ function ClientDashboard() {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
 
+  const tabBase = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
+  const tabActive = 'bg-slate-900 text-white shadow';
+  const tabInactive = 'bg-white text-slate-600 hover:bg-slate-100';
+  const cardClass = 'rounded-xl border border-slate-200 bg-white p-6 shadow-sm';
+  const formClass = 'grid gap-4';
+  const formGroupClass = 'grid gap-2';
+  const labelClass = 'text-sm font-medium text-slate-700';
+  const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100';
+  const selectClass = inputClass;
+  const textareaClass = `${inputClass} min-h-[120px]`;
+  const buttonPrimary = 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700';
+  const buttonGhost = 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100';
+  const badgeClass = {
+    Pending: 'bg-amber-100 text-amber-700',
+    Approved: 'bg-emerald-100 text-emerald-700',
+    Rejected: 'bg-rose-100 text-rose-700',
+  };
+  const tableWrap = 'overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm';
+  const tableClass = 'min-w-full text-sm';
+  const thClass = 'bg-slate-100 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600';
+  const tdClass = 'border-t border-slate-100 px-4 py-3 text-slate-700';
+
   // Filtered and searched requests
   const filteredRequests = requests.filter((req) => {
     const matchesSearch =
@@ -165,29 +187,31 @@ function ClientDashboard() {
 
   return (
     <MainLayout title="Client">
-      <div className="sv-main-content">
+      <div className="space-y-6">
         {notification && (
-          <div className={`sv-notification sv-notification-success`}>{notification}</div>
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            {notification}
+          </div>
         )}
-        <div className="sv-tabs">
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
           <button
-            className={`sv-tab${activeTab === "submit" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'submit' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("submit")}
           >Submit Request</button>
           <button
-            className={`sv-tab${activeTab === "track" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'track' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("track")}
           >Track Requests</button>
         </div>
         {activeTab === "submit" ? (
-          <div className="sv-tab-content">
-            <div className="sv-card sv-form-card">
-              <h2 className="sv-card-title">Submit Request</h2>
-              <form className="sv-form" onSubmit={handleSubmit}>
-                <div className="sv-form-section">
-                  <h3 className="sv-section-title">Request Details</h3>
-                  <div className="sv-form-group">
-                    <label htmlFor="clientName">Client Name</label>
+          <div className="space-y-6">
+            <div className={cardClass}>
+              <h2 className="mb-5 text-xl font-semibold text-slate-900">Submit Request</h2>
+              <form className={formClass} onSubmit={handleSubmit}>
+                <div className="grid gap-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-600">Request Details</h3>
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="clientName">Client Name</label>
                     <input
                       name="clientName"
                       id="clientName"
@@ -195,117 +219,125 @@ function ClientDashboard() {
                       value={clientDisplayName}
                       disabled
                       readOnly
+                      className={`${inputClass} bg-slate-100 text-slate-500`}
                     />
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="title">Title</label>
-                    <input name="title" id="title" type="text" value={form.title} onChange={handleInputChange} required />
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="title">Title</label>
+                    <input className={inputClass} name="title" id="title" type="text" value={form.title} onChange={handleInputChange} required />
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="description">Description</label>
-                    <textarea name="description" id="description" value={form.description} onChange={handleInputChange} required />
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="description">Description</label>
+                    <textarea className={textareaClass} name="description" id="description" value={form.description} onChange={handleInputChange} required />
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="category">Category</label>
-                    <select name="category" id="category" value={form.category} onChange={handleInputChange} required>
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="category">Category</label>
+                    <select className={selectClass} name="category" id="category" value={form.category} onChange={handleInputChange} required>
                       <option value="">Select Category</option>
                       {Object.keys(categoryOptions).map((cat) => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="subcategory">Subcategory</label>
-                    <select name="subcategory" id="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="subcategory">Subcategory</label>
+                    <select className={selectClass} name="subcategory" id="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
                       <option value="">{form.category ? "Select Subcategory" : "Select Category First"}</option>
                       {form.category && categoryOptions[form.category].map((sub) => (
                         <option key={sub} value={sub}>{sub}</option>
                       ))}
                     </select>
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="priority">Priority</label>
-                    <select name="priority" id="priority" value={form.priority} onChange={handleInputChange} required>
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="priority">Priority</label>
+                    <select className={selectClass} name="priority" id="priority" value={form.priority} onChange={handleInputChange} required>
                       {priorityOptions.map((p) => (
                         <option key={p} value={p}>{p}</option>
                       ))}
                     </select>
                   </div>
                 </div>
-                <div className="sv-form-section">
-                  <h3 className="sv-section-title">Budget</h3>
-                  <div className="sv-form-group">
-                    <label htmlFor="budgetMin">Budget Min</label>
-                    <input name="budgetMin" id="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
+                <div className="grid gap-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-600">Budget</h3>
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="budgetMin">Budget Min</label>
+                    <input className={inputClass} name="budgetMin" id="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="budgetMax">Budget Max</label>
-                    <input name="budgetMax" id="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="budgetMax">Budget Max</label>
+                    <input className={inputClass} name="budgetMax" id="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="dateRequired">Date Required</label>
-                    <input name="dateRequired" id="dateRequired" type="date" value={form.dateRequired} onChange={handleInputChange} min={today} required />
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="dateRequired">Date Required</label>
+                    <input className={inputClass} name="dateRequired" id="dateRequired" type="date" value={form.dateRequired} onChange={handleInputChange} min={today} required />
                   </div>
-                  <div className="sv-form-group">
-                    <label htmlFor="attachment">Attachments (specifications)</label>
-                    <input name="attachment" id="attachment" type="file" onChange={handleInputChange} />
+                  <div className={formGroupClass}>
+                    <label className={labelClass} htmlFor="attachment">Attachments (specifications)</label>
+                    <input className="text-sm text-slate-600" name="attachment" id="attachment" type="file" onChange={handleInputChange} />
                   </div>
                 </div>
-                <button type="submit" className="sv-btn-primary">Submit</button>
+                <button type="submit" className={buttonPrimary}>Submit</button>
               </form>
             </div>
           </div>
         ) : activeTab === "track" ? (
-          <div className="sv-tab-content">
-            <div style={{ marginBottom: 10 }}>
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 placeholder="Search by ID, Title, Category, Subcategory"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ maxWidth: 220, marginRight: 8 }}
+                className={`${inputClass} max-w-xs`}
               />
-              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ marginRight: 8 }}>
+              <select className={selectClass} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
                 <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="Approved">Approved</option>
                 <option value="Rejected">Rejected</option>
               </select>
-              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ marginRight: 8 }}>
+              <select className={selectClass} value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                 <option value="">All Categories</option>
                 {Object.keys(categoryOptions).map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              <button onClick={() => { setSearch(""); setFilterStatus(""); setFilterCategory(""); }} type="button">Clear</button>
+              <button
+                className={buttonGhost}
+                onClick={() => { setSearch(""); setFilterStatus(""); setFilterCategory(""); }}
+                type="button"
+              >
+                Clear
+              </button>
             </div>
-            <div className="sv-table-container">
-              <table className="sv-table sv-table-striped sv-table-rounded">
+            <div className={tableWrap}>
+              <table className={tableClass}>
                 <thead>
                   <tr>
-                    <th>Request ID</th>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Subcategory</th>
-                    <th>Priority</th>
-                    <th>Budget</th>
-                    <th>Date Required</th>
-                    <th>Status</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
+                    <th className={thClass}>Request ID</th>
+                    <th className={thClass}>Title</th>
+                    <th className={thClass}>Category</th>
+                    <th className={thClass}>Subcategory</th>
+                    <th className={thClass}>Priority</th>
+                    <th className={thClass}>Budget</th>
+                    <th className={thClass}>Date Required</th>
+                    <th className={thClass}>Status</th>
+                    <th className={thClass}>Edit</th>
+                    <th className={thClass}>Delete</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRequests.length === 0 ? (
                     <tr>
-                      <td colSpan={10}>No requests found.</td>
+                      <td className={`${tdClass} text-center`} colSpan={10}>No requests found.</td>
                     </tr>
                   ) : (
                     filteredRequests.map((req, idx) => (
-                      <tr key={req.id} className={idx % 2 === 1 ? 'sv-table-row-alt' : ''}>
-                        <td>{req.id}</td>
-                        <td>
+                      <tr key={req.id} className={idx % 2 === 1 ? 'bg-slate-50' : ''}>
+                        <td className={tdClass}>{req.id}</td>
+                        <td className={tdClass}>
                           {editId === req.id ? (
                             <input
+                              className={inputClass}
                               name="title"
                               value={editRequest.title}
                               onChange={e => setEditRequest({ ...editRequest, title: e.target.value })}
@@ -314,18 +346,20 @@ function ClientDashboard() {
                             req.title
                           )}
                         </td>
-                        <td>{req.category}</td>
-                        <td>{req.subcategory}</td>
-                        <td>{req.priority}</td>
-                        <td>{req.budgetMin} - {req.budgetMax}</td>
-                        <td>{req.dateRequired}</td>
-                        <td>
-                          <span className={`sv-badge sv-badge-${req.status.toLowerCase()}`}>{req.status}</span>
+                        <td className={tdClass}>{req.category}</td>
+                        <td className={tdClass}>{req.subcategory}</td>
+                        <td className={tdClass}>{req.priority}</td>
+                        <td className={tdClass}>{req.budgetMin} - {req.budgetMax}</td>
+                        <td className={tdClass}>{req.dateRequired}</td>
+                        <td className={tdClass}>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass[req.status] || 'bg-slate-100 text-slate-700'}`}>
+                            {req.status}
+                          </span>
                         </td>
-                        <td>
+                        <td className={tdClass}>
                           {editId === req.id ? (
                             <>
-                              <button onClick={async () => {
+                              <button className={buttonPrimary} onClick={async () => {
                                 const updatedRequests = requests.map((r) =>
                                   r.id === req.id ? { ...r, title: editRequest.title } : r
                                 );
@@ -349,14 +383,14 @@ function ClientDashboard() {
                                 }).catch(() => {});
                                 showNotification("Request updated.");
                               }}>Save</button>
-                              <button onClick={() => { setEditId(null); setEditRequest({}); }}>Cancel</button>
+                              <button className={buttonGhost} onClick={() => { setEditId(null); setEditRequest({}); }}>Cancel</button>
                             </>
                           ) : (
-                            <button onClick={() => { setEditId(req.id); setEditRequest({ ...req }); }}>Edit</button>
+                            <button className={buttonGhost} onClick={() => { setEditId(req.id); setEditRequest({ ...req }); }}>Edit</button>
                           )}
                         </td>
-                        <td>
-                          <button onClick={async () => {
+                        <td className={tdClass}>
+                          <button className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50" onClick={async () => {
                             const updatedRequests = requests.filter((r) => r.id !== req.id);
 
                             setRequests(updatedRequests);

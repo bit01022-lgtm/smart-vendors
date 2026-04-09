@@ -4,11 +4,26 @@ import MainLayout from '../../components/layout/MainLayout';
 import { saveAllVendorInvoices, subscribeAllVendorInvoices } from '../../services/dataService';
 import { logActivity } from '../../utils/activityLogger';
 
-import '../../styles/DashboardStyles.css';
+ 
 
 function FinanceDashboard() {
   const [activeTab, setActiveTab] = useState("viewInvoices");
   const [invoices, setInvoices] = useState([]);
+
+  const tabBase = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
+  const tabActive = 'bg-slate-900 text-white shadow';
+  const tabInactive = 'bg-white text-slate-600 hover:bg-slate-100';
+  const tableWrap = 'overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm';
+  const tableClass = 'min-w-full text-sm';
+  const thClass = 'bg-slate-100 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600';
+  const tdClass = 'border-t border-slate-100 px-4 py-3 text-slate-700';
+  const badgeClass = {
+    Approved: 'bg-emerald-100 text-emerald-700',
+    Rejected: 'bg-rose-100 text-rose-700',
+    Pending: 'bg-amber-100 text-amber-700',
+    Paid: 'bg-emerald-100 text-emerald-700',
+    Unpaid: 'bg-amber-100 text-amber-700',
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeAllVendorInvoices(setInvoices);
@@ -62,72 +77,71 @@ function FinanceDashboard() {
   return (
     <MainLayout title="Finance">
       {/* Removed icon space for role as well */}
-      <div className="sv-main-content">
-        <div className="sv-summary-cards">
-          <div className="sv-summary-card sv-summary-total">
-            <div className="sv-summary-label">Total Payments</div>
-            <div className="sv-summary-value">{totalPayments}</div>
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-blue-400 px-6 py-5 text-white shadow-lg shadow-blue-200/50">
+            <div className="text-sm uppercase tracking-wide text-blue-50/90">Total Payments</div>
+            <div className="mt-2 text-3xl font-semibold">{totalPayments}</div>
           </div>
-          <div className="sv-summary-card sv-summary-pending">
-            <div className="sv-summary-label">Pending</div>
-            <div className="sv-summary-value">{pendingPayments}</div>
+          <div className="rounded-2xl bg-gradient-to-br from-amber-300 to-amber-200 px-6 py-5 text-amber-900 shadow-lg shadow-amber-200/50">
+            <div className="text-sm uppercase tracking-wide text-amber-800/80">Pending</div>
+            <div className="mt-2 text-3xl font-semibold">{pendingPayments}</div>
           </div>
-          <div className="sv-summary-card sv-summary-completed">
-            <div className="sv-summary-label">Completed</div>
-            <div className="sv-summary-value">{completedPayments}</div>
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-400 px-6 py-5 text-white shadow-lg shadow-emerald-200/50">
+            <div className="text-sm uppercase tracking-wide text-emerald-50/90">Completed</div>
+            <div className="mt-2 text-3xl font-semibold">{completedPayments}</div>
           </div>
         </div>
-        <div className="sv-tabs">
-          <button className={`sv-tab${activeTab === "viewInvoices" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("viewInvoices")}>Handle Invoices</button>
-          <button className={`sv-tab${activeTab === "approvePayments" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("approvePayments")}>Approve Payments</button>
-          <button className={`sv-tab${activeTab === "trackPayments" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("trackPayments")}>Track Payment Records</button>
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+          <button className={`${tabBase} ${activeTab === 'viewInvoices' ? tabActive : tabInactive}`} onClick={() => setActiveTab("viewInvoices")}>Handle Invoices</button>
+          <button className={`${tabBase} ${activeTab === 'approvePayments' ? tabActive : tabInactive}`} onClick={() => setActiveTab("approvePayments")}>Approve Payments</button>
+          <button className={`${tabBase} ${activeTab === 'trackPayments' ? tabActive : tabInactive}`} onClick={() => setActiveTab("trackPayments")}>Track Payment Records</button>
         </div>
         <div>
           {activeTab === "viewInvoices" && (
-            <div className="sv-tab-content">
-              <h3>Handle Invoices</h3>
-              <div className="sv-table-container">
-                <table className="sv-table sv-table-striped sv-table-rounded">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-slate-900">Handle Invoices</h3>
+              <div className={tableWrap}>
+                <table className={tableClass}>
                   <thead>
                     <tr>
-                      <th>Invoice Name</th>
-                      <th>PO Number</th>
-                      <th>Amount</th>
-                      <th>Document</th>
-                      <th>Submission Date</th>
-                      <th>Verification</th>
-                      <th>Status</th>
+                      <th className={thClass}>Invoice Name</th>
+                      <th className={thClass}>PO Number</th>
+                      <th className={thClass}>Amount</th>
+                      <th className={thClass}>Document</th>
+                      <th className={thClass}>Submission Date</th>
+                      <th className={thClass}>Verification</th>
+                      <th className={thClass}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredInvoices.length === 0 ? (
                       <tr>
-                        <td colSpan={7}>No invoices found.</td>
+                        <td className={`${tdClass} text-center`} colSpan={7}>No invoices found.</td>
                       </tr>
                     ) : (
                       filteredInvoices.map((inv) => (
                         <tr key={inv.id}>
-                          <td>{inv.name || inv.file || inv.id}</td>
-                          <td>{inv.po || inv.poNumber}</td>
-                          <td>{inv.amount || '-'}</td>
-                          <td>
+                          <td className={tdClass}>{inv.name || inv.file || inv.id}</td>
+                          <td className={tdClass}>{inv.po || inv.poNumber}</td>
+                          <td className={tdClass}>{inv.amount || '-'}</td>
+                          <td className={tdClass}>
                             {inv.file ? (
-                              <a href={"#"} title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                              <a href={"#"} title={inv.file} className="text-blue-600 underline">{inv.file}</a>
                             ) : (
-                              <span style={{color:'#888'}}>No file</span>
+                              <span className="text-slate-500">No file</span>
                             )}
                           </td>
-                          <td>{inv.submissionDate}</td>
-                          <td>
+                          <td className={tdClass}>{inv.submissionDate}</td>
+                          <td className={tdClass}>
                             {(inv.status === "Approved" || inv.status === "Rejected") ? (
-                              <span className={`sv-badge sv-badge-${inv.status === "Approved" ? "success" : "danger"}`}>
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass[inv.status]}`}>
                                 {inv.status}
                               </span>
                             ) : (
                               <>
                                 <button
-                                  className="sv-btn sv-btn-success sv-btn-highlight"
-                                  style={{ marginRight: 8, fontWeight: 'bold', boxShadow: '0 0 6px #28a745' }}
+                                  className="mr-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
                                   onClick={() => {
                                     handleVerifyInvoice(inv.id, inv.ownerUid, "Verified");
                                   }}
@@ -135,8 +149,7 @@ function FinanceDashboard() {
                                   Approve
                                 </button>
                                 <button
-                                  className="sv-btn sv-btn-danger sv-btn-highlight"
-                                  style={{ fontWeight: 'bold', boxShadow: '0 0 6px #dc3545' }}
+                                  className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
                                   onClick={() => {
                                     handleVerifyInvoice(inv.id, inv.ownerUid, "Rejected");
                                   }}
@@ -146,13 +159,13 @@ function FinanceDashboard() {
                               </>
                             )}
                           </td>
-                          <td>
+                          <td className={tdClass}>
                             {(inv.status === "Approved" || inv.status === "Rejected") ? (
-                              <span className={`sv-badge sv-badge-${inv.status === "Approved" ? "success" : "danger"}`}>
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass[inv.status]}`}>
                                 {inv.status}
                               </span>
                             ) : (
-                              <span className="sv-badge sv-badge-warning">Pending</span>
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass.Pending}`}>Pending</span>
                             )}
                           </td>
                         </tr>
@@ -164,49 +177,49 @@ function FinanceDashboard() {
             </div>
           )}
         {activeTab === "approvePayments" && (
-          <div className="sv-tab-content">
-            <h3>Approve Payments</h3>
-            <div className="sv-table-container">
-              <table className="sv-table sv-table-striped sv-table-rounded">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900">Approve Payments</h3>
+            <div className={tableWrap}>
+              <table className={tableClass}>
                 <thead>
                   <tr>
-                    <th>Invoice Name</th>
-                    <th>PO Number</th>
-                    <th>Amount</th>
-                    <th>Document</th>
-                    <th>Submission Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th className={thClass}>Invoice Name</th>
+                    <th className={thClass}>PO Number</th>
+                    <th className={thClass}>Amount</th>
+                    <th className={thClass}>Document</th>
+                    <th className={thClass}>Submission Date</th>
+                    <th className={thClass}>Status</th>
+                    <th className={thClass}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoices.filter(inv => inv.status === "Approved").length === 0 ? (
                     <tr>
-                      <td colSpan={7}>No approved invoices for payment.</td>
+                      <td className={`${tdClass} text-center`} colSpan={7}>No approved invoices for payment.</td>
                     </tr>
                   ) : (
                     invoices.filter(inv => inv.status === "Approved").map((inv) => (
                       <tr key={inv.id}>
-                        <td>{inv.name || inv.file || inv.id}</td>
-                        <td>{inv.po || inv.poNumber}</td>
-                        <td>{inv.amount || '-'}</td>
-                        <td>
+                        <td className={tdClass}>{inv.name || inv.file || inv.id}</td>
+                        <td className={tdClass}>{inv.po || inv.poNumber}</td>
+                        <td className={tdClass}>{inv.amount || '-'}</td>
+                        <td className={tdClass}>
                           {inv.file ? (
-                            <a href={inv.fileUrl || '#'} target="_blank" rel="noreferrer" title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                            <a href={inv.fileUrl || '#'} target="_blank" rel="noreferrer" title={inv.file} className="text-blue-600 underline">{inv.file}</a>
                           ) : (
-                            <span style={{color:'#888'}}>No file</span>
+                            <span className="text-slate-500">No file</span>
                           )}
                         </td>
-                        <td>{inv.submissionDate}</td>
-                        <td>
-                          <span className="sv-badge sv-badge-success">Approved</span>
+                        <td className={tdClass}>{inv.submissionDate}</td>
+                        <td className={tdClass}>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass.Approved}`}>Approved</span>
                         </td>
-                        <td>
+                        <td className={tdClass}>
                           {(inv.paymentStatus === "Paid") ? (
-                            <span className="sv-badge sv-badge-completed">Paid</span>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass.Paid}`}>Paid</span>
                           ) : (
                             <button
-                              className="sv-btn sv-btn-success"
+                              className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
                               onClick={() => handleApprovePayment(inv.id, inv.ownerUid)}
                             >
                               Mark as Paid
@@ -223,44 +236,44 @@ function FinanceDashboard() {
         )}
 
         {activeTab === "trackPayments" && (
-          <div className="sv-tab-content">
-            <h3>Track Payment Records</h3>
-            <div className="sv-table-container">
-              <table className="sv-table sv-table-striped sv-table-rounded">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900">Track Payment Records</h3>
+            <div className={tableWrap}>
+              <table className={tableClass}>
                 <thead>
                   <tr>
-                    <th>Invoice Name</th>
-                    <th>PO Number</th>
-                    <th>Amount</th>
-                    <th>Document</th>
-                    <th>Submission Date</th>
-                    <th>Status</th>
+                    <th className={thClass}>Invoice Name</th>
+                    <th className={thClass}>PO Number</th>
+                    <th className={thClass}>Amount</th>
+                    <th className={thClass}>Document</th>
+                    <th className={thClass}>Submission Date</th>
+                    <th className={thClass}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoices.length === 0 ? (
                     <tr>
-                      <td colSpan={6}>No invoices found.</td>
+                      <td className={`${tdClass} text-center`} colSpan={6}>No invoices found.</td>
                     </tr>
                   ) : (
                     invoices.map((inv) => (
                       <tr key={inv.id}>
-                        <td>{inv.name || inv.file || inv.id}</td>
-                        <td>{inv.po || inv.poNumber}</td>
-                        <td>{inv.amount || '-'}</td>
-                        <td>
+                        <td className={tdClass}>{inv.name || inv.file || inv.id}</td>
+                        <td className={tdClass}>{inv.po || inv.poNumber}</td>
+                        <td className={tdClass}>{inv.amount || '-'}</td>
+                        <td className={tdClass}>
                           {inv.file ? (
-                            <a href={inv.fileUrl || '#'} target="_blank" rel="noreferrer" title={inv.file} style={{textDecoration:'underline',color:'#007bff'}}>{inv.file}</a>
+                            <a href={inv.fileUrl || '#'} target="_blank" rel="noreferrer" title={inv.file} className="text-blue-600 underline">{inv.file}</a>
                           ) : (
-                            <span style={{color:'#888'}}>No file</span>
+                            <span className="text-slate-500">No file</span>
                           )}
                         </td>
-                        <td>{inv.submissionDate}</td>
-                        <td>
+                        <td className={tdClass}>{inv.submissionDate}</td>
+                        <td className={tdClass}>
                           {(inv.paymentStatus === "Paid") ? (
-                            <span className="sv-badge sv-badge-completed">Paid</span>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass.Paid}`}>Paid</span>
                           ) : (
-                            <span className="sv-badge sv-badge-warning">Unpaid</span>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass.Unpaid}`}>Unpaid</span>
                           )}
                         </td>
                       </tr>

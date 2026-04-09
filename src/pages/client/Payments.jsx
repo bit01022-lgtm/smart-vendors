@@ -18,6 +18,14 @@ const Payments = () => {
   const [selectedPO, setSelectedPO] = useState(null);
   const [method, setMethod] = useState(paymentMethods[0]);
 
+  const tableWrap = 'overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm';
+  const tableClass = 'min-w-full text-sm';
+  const thClass = 'bg-slate-100 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600';
+  const tdClass = 'border-t border-slate-100 px-4 py-3 text-slate-700';
+  const buttonPrimary = 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700';
+  const buttonGhost = 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100';
+  const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100';
+
   const handlePayNow = (po) => {
     setSelectedPO(po);
     setShowModal(true);
@@ -30,58 +38,62 @@ const Payments = () => {
   };
 
   return (
-    <div className="sv-payments-section">
-      <h2>Payments</h2>
-      <table className="sv-table sv-table-striped sv-table-rounded">
-        <thead>
-          <tr>
-            <th>PO ID</th>
-            <th>Vendor</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {approvedPOs.map((po) => (
-            <tr key={po.id}>
-              <td>{po.id}</td>
-              <td>{po.vendor}</td>
-              <td>{po.amount}</td>
-              <td>{po.status}</td>
-              <td>
-                {po.status === "Pending Payment" ? (
-                  <button className="sv-btn-primary" onClick={() => handlePayNow(po)}>
-                    Pay Now
-                  </button>
-                ) : (
-                  <span style={{ color: "green" }}>Paid</span>
-                )}
-              </td>
+    <div className="space-y-4">
+      <h2 className="text-lg font-semibold text-slate-900">Payments</h2>
+      <div className={tableWrap}>
+        <table className={tableClass}>
+          <thead>
+            <tr>
+              <th className={thClass}>PO ID</th>
+              <th className={thClass}>Vendor</th>
+              <th className={thClass}>Amount</th>
+              <th className={thClass}>Status</th>
+              <th className={thClass}>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {approvedPOs.map((po) => (
+              <tr key={po.id}>
+                <td className={tdClass}>{po.id}</td>
+                <td className={tdClass}>{po.vendor}</td>
+                <td className={tdClass}>{po.amount}</td>
+                <td className={tdClass}>{po.status}</td>
+                <td className={tdClass}>
+                  {po.status === "Pending Payment" ? (
+                    <button className={buttonPrimary} onClick={() => handlePayNow(po)}>
+                      Pay Now
+                    </button>
+                  ) : (
+                    <span className="text-emerald-600">Paid</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {showModal && selectedPO && (
-        <div className="sv-modal sv-modal-open">
-          <div className="sv-modal-content">
-            <h3>Make Payment for {selectedPO.id}</h3>
-            <form onSubmit={handlePayment}>
-              <div className="sv-form-group">
-                <label>Payment Method</label>
-                <select value={method} onChange={e => setMethod(e.target.value)} required>
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/60 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-900">Make Payment for {selectedPO.id}</h3>
+            <form className="mt-4 grid gap-4" onSubmit={handlePayment}>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700">Payment Method</label>
+                <select className={inputClass} value={method} onChange={e => setMethod(e.target.value)} required>
                   {paymentMethods.map((m) => (
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
               </div>
-              <div className="sv-form-group">
-                <label>Amount</label>
-                <input type="number" value={selectedPO.amount} readOnly />
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-slate-700">Amount</label>
+                <input className={`${inputClass} bg-slate-100 text-slate-500`} type="number" value={selectedPO.amount} readOnly />
               </div>
-              <button type="submit" className="sv-btn-primary">Confirm Payment</button>
-              <button type="button" className="sv-btn-secondary" onClick={() => setShowModal(false)} style={{marginLeft:8}}>Cancel</button>
+              <div className="flex flex-wrap gap-2">
+                <button type="submit" className={buttonPrimary}>Confirm Payment</button>
+                <button type="button" className={buttonGhost} onClick={() => setShowModal(false)}>Cancel</button>
+              </div>
             </form>
           </div>
         </div>

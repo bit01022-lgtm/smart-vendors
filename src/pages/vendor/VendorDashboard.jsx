@@ -19,7 +19,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from '../../services/filePersistenceService';
 
-import '../../styles/DashboardStyles.css';
+ 
 
   // ...existing code...
 
@@ -53,6 +53,24 @@ function VendorDashboard() {
     setNotification(msg);
     setTimeout(() => setNotification(""), 3000);
   };
+
+  const tabBase = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
+  const tabActive = 'bg-slate-900 text-white shadow';
+  const tabInactive = 'bg-white text-slate-600 hover:bg-slate-100';
+  const cardClass = 'rounded-xl border border-slate-200 bg-white p-6 shadow-sm';
+  const formClass = 'grid gap-4';
+  const formGroupClass = 'grid gap-2';
+  const labelClass = 'text-sm font-medium text-slate-700';
+  const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100';
+  const selectClass = inputClass;
+  const textareaClass = `${inputClass} min-h-[120px]`;
+  const buttonPrimary = 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700';
+  const buttonGhost = 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100';
+  const buttonDanger = 'rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50';
+  const tableWrap = 'overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm';
+  const tableClass = 'min-w-full text-sm';
+  const thClass = 'bg-slate-100 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600';
+  const tdClass = 'border-t border-slate-100 px-4 py-3 text-slate-700';
   const [documents, setDocuments] = useState([]);
   const [tenders, setTenders] = useState(initialTenders);
   const [bids, setBids] = useState([]);
@@ -522,140 +540,149 @@ function VendorDashboard() {
   return (
     <MainLayout title="Vendor">
       {/* Removed icon space for role as well */}
-      <div className="sv-main-content">
+      <div className="space-y-6">
         {notification && (
-          <div className="sv-notification sv-notification-success">{notification}</div>
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{notification}</div>
         )}
-        <div className="sv-tabs">
-          <button className={`sv-tab${activeTab === "vendorRegistration" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("vendorRegistration")}>Vendor Registration</button>
-          <button className={`sv-tab${activeTab === "viewTenders" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("viewTenders")}>View Open Tenders</button>
-          <button className={`sv-tab${activeTab === "submitBids" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("submitBids")}>Submit Bids</button>
-          <button className={`sv-tab${activeTab === "uploadInvoices" ? " sv-tab-active" : ""}`} onClick={() => setActiveTab("uploadInvoices")}>Upload Invoices</button>
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+          <button className={`${tabBase} ${activeTab === 'vendorRegistration' ? tabActive : tabInactive}`} onClick={() => setActiveTab("vendorRegistration")}>Vendor Registration</button>
+          <button className={`${tabBase} ${activeTab === 'viewTenders' ? tabActive : tabInactive}`} onClick={() => setActiveTab("viewTenders")}>View Open Tenders</button>
+          <button className={`${tabBase} ${activeTab === 'submitBids' ? tabActive : tabInactive}`} onClick={() => setActiveTab("submitBids")}>Submit Bids</button>
+          <button className={`${tabBase} ${activeTab === 'uploadInvoices' ? tabActive : tabInactive}`} onClick={() => setActiveTab("uploadInvoices")}>Upload Invoices</button>
         </div>
 
         {activeTab === "vendorRegistration" && (
-          <div className="sv-tab-content">
-            <h2>Vendor Registration</h2>
-            <form className="sv-form" style={{marginBottom: 24}} onSubmit={handleRegistrationSubmit}>
-              <div className="sv-form-group">
-                <label>Company Name:</label>
-                <input name="companyName" type="text" placeholder="Enter company name" value={registration.companyName} onChange={handleRegistrationChange} required />
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-slate-900">Vendor Registration</h2>
+              <form className={formClass} onSubmit={handleRegistrationSubmit}>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Company Name:</label>
+                  <input className={inputClass} name="companyName" type="text" placeholder="Enter company name" value={registration.companyName} onChange={handleRegistrationChange} required />
+                </div>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Company Registration Number:</label>
+                  <input className={inputClass} name="registrationNumber" type="text" placeholder="Enter registration number" value={registration.registrationNumber} onChange={handleRegistrationChange} required />
+                </div>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Company Email:</label>
+                  <input className={inputClass} name="companyEmail" type="email" placeholder="Enter company email" value={registration.companyEmail} onChange={handleRegistrationChange} required />
+                </div>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Company Phone:</label>
+                  <input className={inputClass} name="companyPhone" type="tel" placeholder="Enter company phone" value={registration.companyPhone} onChange={handleRegistrationChange} required />
+                </div>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Company Address:</label>
+                  <input className={inputClass} name="companyAddress" type="text" placeholder="Enter company address" value={registration.companyAddress} onChange={handleRegistrationChange} required />
+                </div>
+                <button type="submit" className={buttonPrimary}>Save Registration</button>
+              </form>
+              <div className={cardClass}>
+                <h3 className="mb-4 text-base font-semibold text-slate-900">Upload Documents</h3>
+                <form className={formClass} onSubmit={handleDocSubmit}>
+                  <div className={formGroupClass}>
+                    <label className={labelClass}>Document Name:</label>
+                    <select className={selectClass} value={docName} onChange={handleDocNameChange} required>
+                      <option value="">Select Document Type</option>
+                      <option value="Certificate of Incorporation">Certificate of Incorporation</option>
+                      <option value="Tax Clearance Certificate">Tax Clearance Certificate</option>
+                      <option value="custom">Other (Custom Name)</option>
+                    </select>
+                    {docName === "custom" && (
+                      <input className={inputClass} type="text" placeholder="Enter custom document name" value={customDocName} onChange={handleCustomDocNameChange} required />
+                    )}
+                  </div>
+                  <div className={formGroupClass}>
+                    <label className={labelClass}>Upload Files:</label>
+                    <input className="text-sm text-slate-600" type="file" multiple onChange={handleDocFileChange} />
+                    <div className="text-xs text-slate-500">All file types accepted. Max: {MAX_FILE_SIZE_LABEL} per file.</div>
+                  </div>
+                  <div className={formGroupClass}>
+                    <label className={labelClass}>Notes/Description:</label>
+                    <input className={inputClass} type="text" value={docNotes} onChange={handleDocNotesChange} />
+                  </div>
+                  <button type="submit" className={buttonPrimary}>Submit</button>
+                </form>
               </div>
-              <div className="sv-form-group">
-                <label>Company Registration Number:</label>
-                <input name="registrationNumber" type="text" placeholder="Enter registration number" value={registration.registrationNumber} onChange={handleRegistrationChange} required />
-              </div>
-              <div className="sv-form-group">
-                <label>Company Email:</label>
-                <input name="companyEmail" type="email" placeholder="Enter company email" value={registration.companyEmail} onChange={handleRegistrationChange} required />
-              </div>
-              <div className="sv-form-group">
-                <label>Company Phone:</label>
-                <input name="companyPhone" type="tel" placeholder="Enter company phone" value={registration.companyPhone} onChange={handleRegistrationChange} required />
-              </div>
-              <div className="sv-form-group">
-                <label>Company Address:</label>
-                <input name="companyAddress" type="text" placeholder="Enter company address" value={registration.companyAddress} onChange={handleRegistrationChange} required />
-              </div>
-              <button type="submit" className="sv-btn-primary">Save Registration</button>
-            </form>
-            <form className="sv-form" onSubmit={handleDocSubmit}>
-              <div>
-                <label>Document Name: </label>
-                <select value={docName} onChange={handleDocNameChange} required>
-                  <option value="">Select Document Type</option>
-                  <option value="Certificate of Incorporation">Certificate of Incorporation</option>
-                  <option value="Tax Clearance Certificate">Tax Clearance Certificate</option>
-                  <option value="custom">Other (Custom Name)</option>
-                </select>
-                {docName === "custom" && (
-                  <input type="text" placeholder="Enter custom document name" value={customDocName} onChange={handleCustomDocNameChange} required />
-                )}
-              </div>
-              <div>
-                <label>Upload Files: </label>
-                <input type="file" multiple onChange={handleDocFileChange} />
-                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  All file types accepted. Max: {MAX_FILE_SIZE_LABEL} per file.
+              <div className="space-y-3">
+                <h3 className="text-base font-semibold text-slate-900">Uploaded Documents</h3>
+                <div className={tableWrap}>
+                  <table className={tableClass}>
+                    <thead>
+                      <tr>
+                        <th className={thClass}>Document ID</th>
+                        <th className={thClass}>Name</th>
+                        <th className={thClass}>Notes</th>
+                        <th className={thClass}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {documents.map((doc) => (
+                        <tr key={doc.id}>
+                          <td className={tdClass}>{doc.id}</td>
+                          <td className={tdClass}>
+                            {doc.fileUrl ? (
+                              <a className="text-blue-600 underline" href={doc.fileUrl} target="_blank" rel="noreferrer">{doc.name}</a>
+                            ) : (
+                              doc.name
+                            )}
+                          </td>
+                          <td className={tdClass}>
+                            {editDocId === doc.id ? (
+                              <span className="flex flex-wrap gap-2">
+                                <input className={inputClass} type="text" value={editDocNotes} onChange={handleEditDocNotesChange} />
+                                <button className={buttonPrimary} onClick={() => handleEditDocSave(doc.id)}>Save</button>
+                                <button className={buttonGhost} onClick={() => setEditDocId(null)}>Cancel</button>
+                              </span>
+                            ) : (
+                              <span>{doc.notes}</span>
+                            )}
+                          </td>
+                          <td className={tdClass}>
+                            <div className="flex flex-wrap gap-2">
+                              <button className={buttonGhost} onClick={() => handleEditDoc(doc)}>Edit</button>
+                              <button className={buttonDanger} onClick={() => handleDeleteDoc(doc.id)}>Delete</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-              <div>
-                <label>Notes/Description: </label>
-                <input type="text" value={docNotes} onChange={handleDocNotesChange} />
-              </div>
-              <button type="submit">Submit</button>
-            </form>
-            <h3>Uploaded Documents</h3>
-            <table className="sv-table">
-              <thead>
-                <tr>
-                  <th>Document ID</th>
-                  <th>Name</th>
-                  <th>Notes</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {documents.map((doc) => (
-                  <tr key={doc.id}>
-                    <td>{doc.id}</td>
-                    <td>
-                      {doc.fileUrl ? (
-                        <a href={doc.fileUrl} target="_blank" rel="noreferrer">{doc.name}</a>
-                      ) : (
-                        doc.name
-                      )}
-                    </td>
-                    <td>
-                    {editDocId === doc.id ? (
-                      <span>
-                        <input type="text" value={editDocNotes} onChange={handleEditDocNotesChange} />
-                        <button onClick={() => handleEditDocSave(doc.id)}>Save</button>
-                        <button onClick={() => setEditDocId(null)}>Cancel</button>
-                      </span>
-                    ) : (
-                      <span>{doc.notes}</span>
-                    )}
-                  </td>
-                  <td>
-                    <button onClick={() => handleEditDoc(doc)}>Edit</button>
-                    <button onClick={() => handleDeleteDoc(doc.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
+        )}
 
       {activeTab === "viewTenders" && (
-        <div className="sv-tab-content">
-          <h3>Open Tenders</h3>
-          <div className="dashboard-filters">
-            <label>Category: </label>
-            <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-slate-900">Open Tenders</h3>
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <label className={labelClass}>Category:</label>
+            <select className={selectClass} value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
               <option value="">All</option>
               {mainCategories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            <label>Budget: </label>
-            <input type="number" value={filterBudget} onChange={(e) => setFilterBudget(e.target.value)} placeholder="Any" />
-            <label>Deadline: </label>
-            <input type="date" value={filterDeadline} onChange={(e) => setFilterDeadline(e.target.value)} />
+            <label className={labelClass}>Budget:</label>
+            <input className={inputClass} type="number" value={filterBudget} onChange={(e) => setFilterBudget(e.target.value)} placeholder="Any" />
+            <label className={labelClass}>Deadline:</label>
+            <input className={inputClass} type="date" value={filterDeadline} onChange={(e) => setFilterDeadline(e.target.value)} />
           </div>
-          <div className="sv-tender-cards">
+          <div className="grid gap-4 md:grid-cols-2">
             {filteredTenders.length === 0 ? (
-              <div className="sv-empty-state">No open tenders available</div>
+              <div className="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">No open tenders available</div>
             ) : (
               filteredTenders.map((t) => (
-                <div className="sv-tender-card" key={t.id}>
-                  <div className="sv-tender-title">{t.title}</div>
-                  <div className="sv-tender-info">
-                    <span><strong>Budget:</strong> {t.budget.min} - {t.budget.max}</span>
-                    <span><strong>Deadline:</strong> {t.deadline}</span>
+                <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" key={t.id}>
+                  <div>
+                    <div className="text-base font-semibold text-slate-900">{t.title}</div>
+                    <div className="mt-2 space-y-1 text-sm text-slate-600">
+                      <div><span className="font-semibold text-slate-700">Budget:</span> {t.budget.min} - {t.budget.max}</div>
+                      <div><span className="font-semibold text-slate-700">Deadline:</span> {t.deadline}</div>
+                    </div>
                   </div>
-                  <button className="sv-btn-primary sv-btn-bid">Submit Bid</button>
+                  <button className={buttonPrimary}>Submit Bid</button>
                 </div>
               ))
             )}
@@ -664,166 +691,170 @@ function VendorDashboard() {
       )}
 
       {activeTab === "submitBids" && (
-        <div className="sv-tab-content">
-          <form className="sv-form" onSubmit={handleBidSubmit}>
-            <div className="sv-form-group">
-              <label>Select Tender:</label>
-              <select value={bidTenderId} onChange={handleBidTenderChange} required>
+        <div className="space-y-6">
+          <form className={formClass} onSubmit={handleBidSubmit}>
+            <div className={formGroupClass}>
+              <label className={labelClass}>Select Tender:</label>
+              <select className={selectClass} value={bidTenderId} onChange={handleBidTenderChange} required>
                 <option value="">Select Tender</option>
                 {tenders.map((t) => (
                   <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
                 ))}
               </select>
             </div>
-            <div className="sv-form-group">
-              <label>Bid Amount:</label>
-              <input type="number" value={bidAmount} onChange={handleBidAmountChange} required />
+            <div className={formGroupClass}>
+              <label className={labelClass}>Bid Amount:</label>
+              <input className={inputClass} type="number" value={bidAmount} onChange={handleBidAmountChange} required />
             </div>
-            <div className="sv-form-group">
-              <label>Notes/Description:</label>
-              <input type="text" value={bidNotes} onChange={handleBidNotesChange} />
+            <div className={formGroupClass}>
+              <label className={labelClass}>Notes/Description:</label>
+              <input className={inputClass} type="text" value={bidNotes} onChange={handleBidNotesChange} />
             </div>
-            <div className="sv-form-group">
-              <label>Upload Bid Files:</label>
-              <input type="file" multiple onChange={handleBidFilesChange} />
+            <div className={formGroupClass}>
+              <label className={labelClass}>Upload Bid Files:</label>
+              <input className="text-sm text-slate-600" type="file" multiple onChange={handleBidFilesChange} />
             </div>
-            <button type="submit">Submit</button>
+            <button type="submit" className={buttonPrimary}>Submit</button>
           </form>
-          <h3>Submitted Bids</h3>
-          <div className="dashboard-filters">
-            <label>Filter by Tender: </label>
-            <select value={filterBidTender} onChange={(e) => setFilterBidTender(e.target.value)}>
+          <h3 className="text-lg font-semibold text-slate-900">Submitted Bids</h3>
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <label className={labelClass}>Filter by Tender:</label>
+            <select className={selectClass} value={filterBidTender} onChange={(e) => setFilterBidTender(e.target.value)}>
               <option value="">All</option>
               {tenders.map((t) => (
                 <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
               ))}
             </select>
-            <label>Amount: </label>
-            <input type="number" value={filterBidAmount} onChange={(e) => setFilterBidAmount(e.target.value)} placeholder="Any" />
-            <label>Status: </label>
-            <select value={filterBidStatus} onChange={(e) => setFilterBidStatus(e.target.value)}>
+            <label className={labelClass}>Amount:</label>
+            <input className={inputClass} type="number" value={filterBidAmount} onChange={(e) => setFilterBidAmount(e.target.value)} placeholder="Any" />
+            <label className={labelClass}>Status:</label>
+            <select className={selectClass} value={filterBidStatus} onChange={(e) => setFilterBidStatus(e.target.value)}>
               <option value="">All</option>
               <option value="Submitted">Submitted</option>
               <option value="Accepted">Accepted</option>
               <option value="Rejected">Rejected</option>
             </select>
           </div>
-          <table className="sv-table">
-            <thead>
-              <tr>
-                <th>Bid ID</th>
-                <th>Tender</th>
-                <th>Amount</th>
-                <th>Notes</th>
-                <th>Status</th>
-                <th>Actions</th>
-                <th>Download</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBids.map((bid) => (
-                <tr key={bid.id}>
-                  <td>{bid.id}</td>
-                  <td>{bid.tenderId}</td>
-                  <td>
-                    {editBidId === bid.id ? (
-                      <input type="number" value={editBidAmount} onChange={handleEditBidAmountChange} />
-                    ) : (
-                      bid.amount
-                    )}
-                  </td>
-                  <td>
-                    {editBidId === bid.id ? (
-                      <input type="text" value={editBidNotes} onChange={handleEditBidNotesChange} />
-                    ) : (
-                      bid.notes
-                    )}
-                  </td>
-                  <td>{bid.status}</td>
-                  <td>
-                    {editBidId === bid.id ? (
-                      <span>
-                        <button onClick={() => handleEditBidSave(bid.id)}>Save</button>
-                        <button onClick={() => setEditBidId(null)}>Cancel</button>
-                      </span>
-                    ) : (
-                      <span>
-                        <button onClick={() => handleEditBid(bid)}>Edit</button>
-                        <button onClick={() => handleDeleteBid(bid.id)}>Delete</button>
-                      </span>
-                    )}
-                  </td>
-                  <td><button onClick={() => handleDownloadBid(bid)}>Download</button></td>
+          <div className={tableWrap}>
+            <table className={tableClass}>
+              <thead>
+                <tr>
+                  <th className={thClass}>Bid ID</th>
+                  <th className={thClass}>Tender</th>
+                  <th className={thClass}>Amount</th>
+                  <th className={thClass}>Notes</th>
+                  <th className={thClass}>Status</th>
+                  <th className={thClass}>Actions</th>
+                  <th className={thClass}>Download</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredBids.map((bid) => (
+                  <tr key={bid.id}>
+                    <td className={tdClass}>{bid.id}</td>
+                    <td className={tdClass}>{bid.tenderId}</td>
+                    <td className={tdClass}>
+                      {editBidId === bid.id ? (
+                        <input className={inputClass} type="number" value={editBidAmount} onChange={handleEditBidAmountChange} />
+                      ) : (
+                        bid.amount
+                      )}
+                    </td>
+                    <td className={tdClass}>
+                      {editBidId === bid.id ? (
+                        <input className={inputClass} type="text" value={editBidNotes} onChange={handleEditBidNotesChange} />
+                      ) : (
+                        bid.notes
+                      )}
+                    </td>
+                    <td className={tdClass}>{bid.status}</td>
+                    <td className={tdClass}>
+                      {editBidId === bid.id ? (
+                        <span className="flex flex-wrap gap-2">
+                          <button className={buttonPrimary} onClick={() => handleEditBidSave(bid.id)}>Save</button>
+                          <button className={buttonGhost} onClick={() => setEditBidId(null)}>Cancel</button>
+                        </span>
+                      ) : (
+                        <span className="flex flex-wrap gap-2">
+                          <button className={buttonGhost} onClick={() => handleEditBid(bid)}>Edit</button>
+                          <button className={buttonDanger} onClick={() => handleDeleteBid(bid.id)}>Delete</button>
+                        </span>
+                      )}
+                    </td>
+                    <td className={tdClass}><button className={buttonGhost} onClick={() => handleDownloadBid(bid)}>Download</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {activeTab === "uploadInvoices" && (
-        <div className="sv-tab-content">
-          <div className="sv-card sv-form-card">
-            <h2 className="sv-card-title">Upload Invoices</h2>
-            <form className="sv-form" onSubmit={handleInvoiceSubmit}>
-              <div className="sv-form-group">
-                <label>Select Purchase Order: </label>
-                <select value={invoicePo} onChange={handleInvoicePoChange} required>
+        <div className="space-y-6">
+          <div className={cardClass}>
+            <h2 className="mb-5 text-xl font-semibold text-slate-900">Upload Invoices</h2>
+            <form className={formClass} onSubmit={handleInvoiceSubmit}>
+              <div className={formGroupClass}>
+                <label className={labelClass}>Select Purchase Order:</label>
+                <select className={selectClass} value={invoicePo} onChange={handleInvoicePoChange} required>
                   <option value="">Select PO</option>
                   {issuedPOs.map((po) => (
                     <option key={po.id} value={po.id}>{po.id} (Tender: {po.tenderId})</option>
                   ))}
                 </select>
               </div>
-              <div className="sv-form-group">
-                <label>Invoice Name: </label>
-                <input type="text" value={invoiceName} onChange={e => setInvoiceName(e.target.value)} required />
+              <div className={formGroupClass}>
+                <label className={labelClass}>Invoice Name:</label>
+                <input className={inputClass} type="text" value={invoiceName} onChange={e => setInvoiceName(e.target.value)} required />
               </div>
-              <div className="sv-form-group">
-                <label>Invoice Amount: </label>
-                <input type="number" value={invoiceAmount} onChange={e => setInvoiceAmount(e.target.value)} required />
+              <div className={formGroupClass}>
+                <label className={labelClass}>Invoice Amount:</label>
+                <input className={inputClass} type="number" value={invoiceAmount} onChange={e => setInvoiceAmount(e.target.value)} required />
               </div>
-              <div className="sv-form-group">
-                <label>Invoice File: </label>
-                <input type="file" onChange={handleInvoiceFileChange} required />
-                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  All file types accepted. Max: {MAX_FILE_SIZE_LABEL} per file.
-                </div>
+              <div className={formGroupClass}>
+                <label className={labelClass}>Invoice File:</label>
+                <input className="text-sm text-slate-600" type="file" onChange={handleInvoiceFileChange} required />
+                <div className="text-xs text-slate-500">All file types accepted. Max: {MAX_FILE_SIZE_LABEL} per file.</div>
               </div>
-              <div className="sv-form-group">
-                <label>Notes: </label>
-                <textarea value={invoiceNotes} onChange={handleInvoiceNotesChange} />
+              <div className={formGroupClass}>
+                <label className={labelClass}>Notes:</label>
+                <textarea className={textareaClass} value={invoiceNotes} onChange={handleInvoiceNotesChange} />
               </div>
-              <button type="submit" className="sv-btn-primary">Submit</button>
+              <button type="submit" className={buttonPrimary}>Submit</button>
             </form>
           </div>
-          <h3>Uploaded Invoices</h3>
-          <table className="sv-table">
-            <thead>
-              <tr>
-                <th>Invoice ID</th>
-                <th>PO</th>
-                <th>File</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((inv) => (
-                <tr key={inv.id}>
-                  <td>{inv.id}</td>
-                  <td>{inv.po}</td>
-                  <td>
-                    {inv.fileUrl ? (
-                      <a href={inv.fileUrl} target="_blank" rel="noreferrer">{inv.file || ''}</a>
-                    ) : (
-                      inv.file || ''
-                    )}
-                  </td>
-                  <td>{inv.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-slate-900">Uploaded Invoices</h3>
+            <div className={tableWrap}>
+              <table className={tableClass}>
+                <thead>
+                  <tr>
+                    <th className={thClass}>Invoice ID</th>
+                    <th className={thClass}>PO</th>
+                    <th className={thClass}>File</th>
+                    <th className={thClass}>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.map((inv) => (
+                    <tr key={inv.id}>
+                      <td className={tdClass}>{inv.id}</td>
+                      <td className={tdClass}>{inv.po}</td>
+                      <td className={tdClass}>
+                        {inv.fileUrl ? (
+                          <a className="text-blue-600 underline" href={inv.fileUrl} target="_blank" rel="noreferrer">{inv.file || ''}</a>
+                        ) : (
+                          inv.file || ''
+                        )}
+                      </td>
+                      <td className={tdClass}>{inv.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
       </div>

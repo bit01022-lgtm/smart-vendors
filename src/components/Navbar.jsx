@@ -12,7 +12,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full flex items-center justify-between px-8 py-4 bg-gray-900 text-white shadow">
+    <nav className="flex w-full items-center justify-between bg-slate-900 px-8 py-4 text-white shadow">
       <span className="text-xl font-bold tracking-wide">Intergrated E-procurement system</span>
       {currentUser ? (
         <div className="flex items-center gap-4 text-sm">
@@ -20,14 +20,7 @@ const Navbar = () => {
           <button
             type="button"
             onClick={handleLogout}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 6,
-              border: '1px solid rgba(255,255,255,0.35)',
-              background: 'transparent',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
+            className="rounded-md border border-white/35 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             Logout
           </button>

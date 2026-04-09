@@ -13,7 +13,7 @@ import {
 } from '../../services/dataService';
 import { logActivity } from '../../utils/activityLogger';
 
-import '../../styles/DashboardStyles.css';
+ 
 
   // ...existing code...
 
@@ -265,6 +265,24 @@ function ProcurementDashboard() {
     setTimeout(() => setNotification(""), 3000);
   };
 
+  const tabBase = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
+  const tabActive = 'bg-slate-900 text-white shadow';
+  const tabInactive = 'bg-white text-slate-600 hover:bg-slate-100';
+  const cardClass = 'rounded-xl border border-slate-200 bg-white p-6 shadow-sm';
+  const formClass = 'grid gap-4';
+  const formGroupClass = 'grid gap-2';
+  const labelClass = 'text-sm font-medium text-slate-700';
+  const inputClass = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100';
+  const selectClass = inputClass;
+  const textareaClass = `${inputClass} min-h-[120px]`;
+  const buttonPrimary = 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700';
+  const buttonGreen = 'rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700';
+  const buttonGhost = 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100';
+  const tableWrap = 'overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm';
+  const tableClass = 'min-w-full text-sm';
+  const thClass = 'bg-slate-100 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600';
+  const tdClass = 'border-t border-slate-100 px-4 py-3 text-slate-700';
+
   useEffect(() => {
     const unsubscribeTenders = subscribeProcurementTenders(setTenders, initialTenders);
     const unsubscribe = subscribeProcurementBids(setBids, initialBids);
@@ -280,30 +298,30 @@ function ProcurementDashboard() {
 
   return (
     <MainLayout title="Procurement">
-      <div className="sv-main-content">
+      <div className="space-y-6">
         {notification && (
-          <div className="sv-notification sv-notification-success">{notification}</div>
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{notification}</div>
         )}
 
-        <div className="sv-tabs">
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
           <button
-            className={`sv-tab${activeTab === "handleRequests" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'handleRequests' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("handleRequests")}
           >Handle Requests</button>
           <button
-            className={`sv-tab${activeTab === "createTender" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'createTender' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("createTender")}
           >Create Tender</button>
           <button
-            className={`sv-tab${activeTab === "viewBids" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'viewBids' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("viewBids")}
           >View Vendor Bids</button>
           <button
-            className={`sv-tab${activeTab === "selectWinner" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'selectWinner' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("selectWinner")}
           >Select Winning Vendor</button>
           <button
-            className={`sv-tab${activeTab === "issuePO" ? " sv-tab-active" : ""}`}
+            className={`${tabBase} ${activeTab === 'issuePO' ? tabActive : tabInactive}`}
             onClick={() => setActiveTab("issuePO")}
           >Issue Purchase Order</button>
         </div>
@@ -313,85 +331,85 @@ function ProcurementDashboard() {
         )}
 
         {activeTab === "createTender" && (
-          <div className="sv-tab-content">
-            <div className="sv-card sv-form-card">
-              <h2 className="sv-card-title">Create Tender</h2>
-              <form className="sv-form" onSubmit={handleSubmit}>
-                <div className="sv-form-group">
-                  <label>Tender Title</label>
-                  <input name="title" type="text" value={form.title} onChange={handleInputChange} required />
+          <div className="space-y-6">
+            <div className={cardClass}>
+              <h2 className="mb-5 text-xl font-semibold text-slate-900">Create Tender</h2>
+              <form className={formClass} onSubmit={handleSubmit}>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Tender Title</label>
+                  <input className={inputClass} name="title" type="text" value={form.title} onChange={handleInputChange} required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Description</label>
-                  <textarea name="description" value={form.description} onChange={handleInputChange} required />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Description</label>
+                  <textarea className={textareaClass} name="description" value={form.description} onChange={handleInputChange} required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Category</label>
-                  <select name="category" value={form.category} onChange={handleInputChange} required>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Category</label>
+                  <select className={selectClass} name="category" value={form.category} onChange={handleInputChange} required>
                     <option value="">Select Category</option>
                     {Object.keys(categoryOptions).map((cat) => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
                 </div>
-                <div className="sv-form-group">
-                  <label>Subcategory</label>
-                  <select name="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Subcategory</label>
+                  <select className={selectClass} name="subcategory" value={form.subcategory} onChange={handleInputChange} required disabled={!form.category}>
                     <option value="">{form.category ? "Select Subcategory" : "Select Category First"}</option>
                     {form.category && categoryOptions[form.category].map((sub) => (
                       <option key={sub} value={sub}>{sub}</option>
                     ))}
                   </select>
                 </div>
-                <div className="sv-form-group">
-                  <label>Budget Min</label>
-                  <input name="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Budget Min</label>
+                  <input className={inputClass} name="budgetMin" type="number" value={form.budgetMin} onChange={handleInputChange} min="0" required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Budget Max</label>
-                  <input name="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Budget Max</label>
+                  <input className={inputClass} name="budgetMax" type="number" value={form.budgetMax} onChange={handleInputChange} min={form.budgetMin || 0} required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Submission Deadline</label>
-                  <input name="deadline" type="date" value={form.deadline} onChange={handleInputChange} min={today} required />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Submission Deadline</label>
+                  <input className={inputClass} name="deadline" type="date" value={form.deadline} onChange={handleInputChange} min={today} required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Attachments</label>
-                  <input name="attachments" type="file" onChange={handleInputChange} multiple />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Attachments</label>
+                  <input className="text-sm text-slate-600" name="attachments" type="file" onChange={handleInputChange} multiple />
                 </div>
-                <button type="submit" className="sv-btn-primary">Submit</button>
+                <button type="submit" className={buttonPrimary}>Submit</button>
               </form>
             </div>
-            <div className="sv-section">
-              <h3 className="sv-section-title">Active Tenders</h3>
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-600">Active Tenders</h3>
               {tenders.filter(t => t.status === "Open").length === 0 ? (
-                <div className="sv-empty-state">No tenders available</div>
+                <div className="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">No tenders available</div>
               ) : (
-                <div className="sv-table-container">
-                  <table className="sv-table sv-table-striped sv-table-rounded">
+                <div className={tableWrap}>
+                  <table className={tableClass}>
                     <thead>
                       <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Subcategory</th>
-                        <th>Budget</th>
-                        <th>Deadline</th>
-                        <th>Actions</th>
+                        <th className={thClass}>ID</th>
+                        <th className={thClass}>Title</th>
+                        <th className={thClass}>Category</th>
+                        <th className={thClass}>Subcategory</th>
+                        <th className={thClass}>Budget</th>
+                        <th className={thClass}>Deadline</th>
+                        <th className={thClass}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {tenders.filter(t => t.status === "Open").map((tender) => (
                         <tr key={tender.id}>
-                          <td>{tender.id}</td>
-                          <td>{tender.title}</td>
-                          <td>{tender.category}</td>
-                          <td>{tender.subcategory}</td>
-                          <td>{tender.budget.min} - {tender.budget.max}</td>
-                          <td>{tender.deadline}</td>
-                          <td>
-                            <button className="sv-btn-primary" style={{marginRight: 8}}>View Bids</button>
-                            <button className="sv-btn-green">Select Winner</button>
+                          <td className={tdClass}>{tender.id}</td>
+                          <td className={tdClass}>{tender.title}</td>
+                          <td className={tdClass}>{tender.category}</td>
+                          <td className={tdClass}>{tender.subcategory}</td>
+                          <td className={tdClass}>{tender.budget.min} - {tender.budget.max}</td>
+                          <td className={tdClass}>{tender.deadline}</td>
+                          <td className={tdClass}>
+                            <button className={`${buttonPrimary} mr-2`}>View Bids</button>
+                            <button className={buttonGreen}>Select Winner</button>
                           </td>
                         </tr>
                       ))}
@@ -400,32 +418,32 @@ function ProcurementDashboard() {
                 </div>
               )}
             </div>
-            <div className="sv-section">
-              <h3 className="sv-section-title">Closed Tenders</h3>
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-600">Closed Tenders</h3>
               {tenders.filter(t => t.status === "Closed").length === 0 ? (
-                <div className="sv-empty-state">No closed tenders</div>
+                <div className="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">No closed tenders</div>
               ) : (
-                <div className="sv-table-container">
-                  <table className="sv-table sv-table-striped sv-table-rounded">
+                <div className={tableWrap}>
+                  <table className={tableClass}>
                     <thead>
                       <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Subcategory</th>
-                        <th>Budget</th>
-                        <th>Deadline</th>
+                        <th className={thClass}>ID</th>
+                        <th className={thClass}>Title</th>
+                        <th className={thClass}>Category</th>
+                        <th className={thClass}>Subcategory</th>
+                        <th className={thClass}>Budget</th>
+                        <th className={thClass}>Deadline</th>
                       </tr>
                     </thead>
                     <tbody>
                       {tenders.filter(t => t.status === "Closed").map((tender) => (
                         <tr key={tender.id}>
-                          <td>{tender.id}</td>
-                          <td>{tender.title}</td>
-                          <td>{tender.category}</td>
-                          <td>{tender.subcategory}</td>
-                          <td>{tender.budget.min} - {tender.budget.max}</td>
-                          <td>{tender.deadline}</td>
+                          <td className={tdClass}>{tender.id}</td>
+                          <td className={tdClass}>{tender.title}</td>
+                          <td className={tdClass}>{tender.category}</td>
+                          <td className={tdClass}>{tender.subcategory}</td>
+                          <td className={tdClass}>{tender.budget.min} - {tender.budget.max}</td>
+                          <td className={tdClass}>{tender.deadline}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -437,41 +455,43 @@ function ProcurementDashboard() {
         )}
 
         {activeTab === "viewBids" && (
-          <div className="sv-tab-content">
-            <h3>Vendor Bids</h3>
-            <table className="sv-table">
-              <thead>
-                <tr>
-                  <th>Bid ID</th>
-                  <th>Tender ID</th>
-                  <th>Vendor Name</th>
-                  <th>Bid Amount</th>
-                  <th>Submission Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bids.map((bid) => (
-                  <tr key={bid.id}>
-                    <td>{bid.id}</td>
-                    <td>{bid.tenderId}</td>
-                    <td>{bid.vendor}</td>
-                    <td>{bid.amount}</td>
-                    <td>{bid.date}</td>
-                    <td>{bid.status}</td>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900">Vendor Bids</h3>
+            <div className={tableWrap}>
+              <table className={tableClass}>
+                <thead>
+                  <tr>
+                    <th className={thClass}>Bid ID</th>
+                    <th className={thClass}>Tender ID</th>
+                    <th className={thClass}>Vendor Name</th>
+                    <th className={thClass}>Bid Amount</th>
+                    <th className={thClass}>Submission Date</th>
+                    <th className={thClass}>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {bids.map((bid) => (
+                    <tr key={bid.id}>
+                      <td className={tdClass}>{bid.id}</td>
+                      <td className={tdClass}>{bid.tenderId}</td>
+                      <td className={tdClass}>{bid.vendor}</td>
+                      <td className={tdClass}>{bid.amount}</td>
+                      <td className={tdClass}>{bid.date}</td>
+                      <td className={tdClass}>{bid.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {activeTab === "selectWinner" && (
-          <div>
-            <h3>Select Winning Vendor</h3>
-            <div>
-              <label>Select Tender: </label>
-              <select value={winnerTenderId} onChange={handleSelectWinnerTender}>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900">Select Winning Vendor</h3>
+            <div className={formGroupClass}>
+              <label className={labelClass}>Select Tender:</label>
+              <select className={selectClass} value={winnerTenderId} onChange={handleSelectWinnerTender}>
                 <option value="">Select Tender</option>
                 {tenders.map((t) => (
                   <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
@@ -480,9 +500,9 @@ function ProcurementDashboard() {
             </div>
             {winnerTenderId && (
               <>
-                <div style={{margin: '12px 0'}}>
+                <div>
                   <button
-                    className="sv-btn-green"
+                    className={buttonGreen}
                     onClick={() => {
                       const tender = tenders.find(t => t.id === winnerTenderId);
                       if (!tender) return;
@@ -496,52 +516,54 @@ function ProcurementDashboard() {
                     }}
                   >Select Lowest Bidder Within Budget</button>
                 </div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Bid ID</th>
-                      <th>Vendor Name</th>
-                      <th>Bid Amount</th>
-                      <th>Status</th>
-                      <th>Select</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bids.filter((b) => b.tenderId === winnerTenderId).map((bid) => (
-                      <tr key={bid.id}>
-                        <td>{bid.id}</td>
-                        <td>{bid.vendor}</td>
-                        <td>{bid.amount}</td>
-                        <td>{bid.status}</td>
-                        <td>
-                          <button onClick={() => handleSelectWinner(bid.id)} disabled={bid.status === "Winner"}>Select</button>
-                        </td>
+                <div className={tableWrap}>
+                  <table className={tableClass}>
+                    <thead>
+                      <tr>
+                        <th className={thClass}>Bid ID</th>
+                        <th className={thClass}>Vendor Name</th>
+                        <th className={thClass}>Bid Amount</th>
+                        <th className={thClass}>Status</th>
+                        <th className={thClass}>Select</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {bids.filter((b) => b.tenderId === winnerTenderId).map((bid) => (
+                        <tr key={bid.id}>
+                          <td className={tdClass}>{bid.id}</td>
+                          <td className={tdClass}>{bid.vendor}</td>
+                          <td className={tdClass}>{bid.amount}</td>
+                          <td className={tdClass}>{bid.status}</td>
+                          <td className={tdClass}>
+                            <button className={buttonGhost} onClick={() => handleSelectWinner(bid.id)} disabled={bid.status === "Winner"}>Select</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </>
             )}
           </div>
         )}
 
         {activeTab === "issuePO" && (
-          <div className="sv-tab-content">
-            <div className="sv-card sv-form-card">
-              <h2 className="sv-card-title">Issue Purchase Order</h2>
-              <form className="sv-form" onSubmit={handlePoSubmit}>
-                <div className="sv-form-group">
-                  <label>Select Tender: </label>
-                  <select name="tenderId" value={poForm.tenderId} onChange={handlePoTenderChange} required>
+          <div className="space-y-6">
+            <div className={cardClass}>
+              <h2 className="mb-5 text-xl font-semibold text-slate-900">Issue Purchase Order</h2>
+              <form className={formClass} onSubmit={handlePoSubmit}>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Select Tender:</label>
+                  <select className={selectClass} name="tenderId" value={poForm.tenderId} onChange={handlePoTenderChange} required>
                     <option value="">Select Tender</option>
                     {tenders.filter((t) => t.status !== "Closed").map((t) => (
                       <option key={t.id} value={t.id}>{t.title} ({t.id})</option>
                     ))}
                   </select>
                 </div>
-                <div className="sv-form-group">
-                  <label>Select Vendor: </label>
-                  <select name="vendor" value={poForm.vendor} onChange={handlePoVendorChange} required disabled={!poForm.tenderId}>
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Select Vendor:</label>
+                  <select className={selectClass} name="vendor" value={poForm.vendor} onChange={handlePoVendorChange} required disabled={!poForm.tenderId}>
                     <option value="">Select Vendor</option>
                     {bids.filter((b) => b.tenderId === poForm.tenderId).length === 0 ? (
                       <option value="" disabled>No vendor bids for this tender</option>
@@ -554,23 +576,23 @@ function ProcurementDashboard() {
                     )}
                   </select>
                 </div>
-                <div className="sv-form-group">
-                  <label>PO Number: </label>
-                  <input name="poNumber" type="text" value={poForm.poNumber || getNextPoNumber()} readOnly />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>PO Number:</label>
+                  <input className={`${inputClass} bg-slate-100 text-slate-500`} name="poNumber" type="text" value={poForm.poNumber || getNextPoNumber()} readOnly />
                 </div>
-                <div className="sv-form-group">
-                  <label>Issue Date: </label>
-                  <input name="issueDate" type="date" value={poForm.issueDate} onChange={handlePoInputChange} required />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Issue Date:</label>
+                  <input className={inputClass} name="issueDate" type="date" value={poForm.issueDate} onChange={handlePoInputChange} required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Amount: </label>
-                  <input name="amount" type="number" value={poForm.amount} onChange={handlePoInputChange} required />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Amount:</label>
+                  <input className={inputClass} name="amount" type="number" value={poForm.amount} onChange={handlePoInputChange} required />
                 </div>
-                <div className="sv-form-group">
-                  <label>Notes: </label>
-                  <textarea name="notes" value={poForm.notes} onChange={handlePoInputChange} />
+                <div className={formGroupClass}>
+                  <label className={labelClass}>Notes:</label>
+                  <textarea className={textareaClass} name="notes" value={poForm.notes} onChange={handlePoInputChange} />
                 </div>
-                <button type="submit" className="sv-btn-primary">Submit</button>
+                <button type="submit" className={buttonPrimary}>Submit</button>
               </form>
             </div>
           </div>

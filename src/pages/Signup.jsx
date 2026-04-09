@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../styles/AuthStyles.css';
 import { registerUser } from '../services/authService';
 
 const roleOptions = ['client', 'procurement', 'vendor', 'finance', 'admin'];
@@ -72,13 +71,13 @@ function Signup() {
   };
 
   return (
-    <div className="auth-container">
-      <h2 className="auth-title">Sign Up</h2>
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <label className="auth-label" htmlFor="username">Username</label>
+    <div className="mx-auto mt-16 w-full max-w-md rounded-xl border border-slate-200 bg-white p-7 shadow-lg shadow-slate-200/60">
+      <h2 className="mb-4 text-center text-2xl font-semibold text-slate-900">Sign Up</h2>
+      <form className="grid gap-3" onSubmit={handleSubmit}>
+        <label className="text-sm font-medium text-slate-700" htmlFor="username">Username</label>
         <input
           id="username"
-          className="auth-input"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
           name="username"
           type="text"
           value={form.username}
@@ -86,10 +85,10 @@ function Signup() {
           required
         />
 
-        <label className="auth-label" htmlFor="email">Email</label>
+        <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
         <input
           id="email"
-          className="auth-input"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
           name="email"
           type="email"
           value={form.email}
@@ -97,20 +96,20 @@ function Signup() {
           required
         />
 
-        <label className="auth-label" htmlFor="password">Password</label>
+        <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>
         <input
           id="password"
-          className="auth-input"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
           name="password"
           type="text"
           value={form.password}
           onChange={handleChange}
           required
         />
-        <label className="auth-label" htmlFor="role">Role</label>
+        <label className="text-sm font-medium text-slate-700" htmlFor="role">Role</label>
         <select
           id="role"
-          className="auth-select"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
           name="role"
           value={form.role}
           onChange={handleChange}
@@ -122,13 +121,18 @@ function Signup() {
           ))}
         </select>
 
-        {error ? <p className="auth-error">{error}</p> : null}
+        {error ? <p className="text-sm text-rose-600">{error}</p> : null}
 
-        <button className="auth-button" type="submit">Create Account</button>
+        <button
+          className="mt-2 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          type="submit"
+        >
+          Create Account
+        </button>
       </form>
 
-      <p className="auth-helper">
-        Already registered? <Link to="/login">Login</Link>
+      <p className="mt-4 text-center text-sm text-slate-600">
+        Already registered? <Link className="font-semibold text-blue-600 hover:underline" to="/login">Login</Link>
       </p>
     </div>
   );

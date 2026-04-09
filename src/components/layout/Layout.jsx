@@ -1,13 +1,12 @@
 import React from "react";
-import "../../styles/DashboardStyles.css";
 
 function Layout({ title, children }) {
   return (
-    <div className="sv-layout">
-      <header className="sv-header">
-        <h1>{title}</h1>
+    <div className="min-h-screen bg-slate-50">
+      <header className="border-b border-slate-200 bg-white px-6 py-4 shadow-sm">
+        <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
       </header>
-      <main className="sv-main-content">
+      <main className="mx-auto w-full max-w-6xl px-6 py-8">
         {children}
       </main>
     </div>
